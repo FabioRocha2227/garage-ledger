@@ -1,0 +1,70 @@
+# Garage Ledger TODO
+
+## 1. Data model
+
+- [ ] In `models.py`, define SQLAlchemy models `Car`, `Part`, and `Photo`.
+- [ ] Give each model an integer primary key and required fields appropriate to the domain.
+- [ ] Define these relationships with `relationship(..., back_populates=...)`:
+	- `Car.parts` ↔ `Part.car` (one-to-many).
+	- `Car.photos` ↔ `Photo.car` (one-to-many).
+	- `Part.photos` ↔ `Photo.part` (one-to-many).
+- [ ] Make `Photo` belong to exactly one parent: either a car or a part.
+- [ ] Add foreign keys, indexes where useful, and cascade behavior for dependent records.
+
+## 2. Pydantic schemas
+
+- [ ] In `schemas.py`, define `CarCreate`, `PartCreate`, and `PhotoCreate` (request data only).
+- [ ] Define `CarRead`, `PartRead`, and `PhotoRead` (including IDs and stored relative paths).
+- [ ] Include nested `photos` on car/part responses and nested `parts` on car responses.
+- [ ] Enable ORM/model serialization (`Config.from_attributes = True` for Pydantic v2).
+- [ ] Add required-field, length, and numeric validation.
+
+## 3. CRUD layer
+
+- [ ] In `crud.py`, implement plain functions for cars and parts:
+	`create`, `list`, `get`, `update`, and `delete`.
+- [ ] Add photo create, list, and delete helpers.
+- [ ] Return `None` for missing records and let routers convert that to HTTP 404.
+- [ ] Commit, refresh, and roll back transactions consistently.
+
+## 4. API routers
+
+- [ ] `routers/cars.py`: `GET /cars`, `GET /cars/{id}`, `POST /cars`, `PUT /cars/{id}`, `DELETE /cars/{id}`.
+- [ ] `routers/parts.py`: the same CRUD endpoints plus `GET /cars/{id}/parts`.
+- [ ] `routers/photos.py`:
+	- `POST /photos` with `UploadFile` and exactly one of `car_id` or `part_id`.
+	- `GET /cars/{id}/photos` and `GET /parts/{id}/photos`.
+	- `DELETE /photos/{id}` to remove both the database row and file.
+- [ ] Use `uuid4().hex` plus a validated extension for collision-safe filenames.
+- [ ] Save files with `shutil.copyfileobj` under the configured upload directory.
+- [ ] Store only a relative path such as `uploads/<filename>` in the database.
+
+## 5. Application setup
+
+- [ ] Create `app = FastAPI()` and include all routers.
+- [ ] Ensure the upload directory exists, then mount it:
+	`app.mount("/uploads", StaticFiles(directory="uploads"), name="uploads")`.
+- [ ] Add `CORSMiddleware` with development origins configured outside the code.
+- [ ] Initialize the database tables through the project’s existing database setup.
+
+## 6. Configuration and hardening
+
+- [ ] Load upload directory, maximum upload size, allowed MIME types, and CORS origins from `.env`.
+- [ ] Reject empty, oversized, or unsupported files with clear 422 responses.
+- [ ] Validate that referenced cars and parts exist before creating children/photos.
+- [ ] Return consistent 404 responses for missing resources and avoid leaking absolute paths.
+- [ ] Add `.gitignore` entries for `garage.db`, `venv/`, `.env`, and `uploads/`.
+
+## 7. Verification
+
+- [ ] Create a car.
+- [ ] Create a part belonging to that car.
+- [ ] Upload one photo for the car and one for the part.
+- [ ] Verify `GET /cars/{id}` returns nested parts and photos.
+- [ ] Verify deletion removes the database record and corresponding file.
+- [ ] Add isolated API tests for success, validation errors, missing IDs, and upload limits.
+
+## 8. Frontend integration
+
+- [ ] Update the frontend to use the API endpoints and returned relative/static photo URLs.
+- [ ] Replace mock data and confirm the car, part, and photo workflows end to end.
