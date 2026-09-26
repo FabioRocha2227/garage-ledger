@@ -1,15 +1,16 @@
+
 # Garage Ledger TODO
 
 ## 1. Data model
 
-- [ ] In `models.py`, define SQLAlchemy models `Car`, `Part`, and `Photo`.
-- [ ] Give each model an integer primary key and required fields appropriate to the domain.
+- [x] In `models.py`, define SQLAlchemy models `Car`, `Part`, and `Photo`.
+- [x] Give each model an integer primary key and required fields appropriate to the domain.
 - [ ] Define these relationships with `relationship(..., back_populates=...)`:
 	- `Car.parts` ↔ `Part.car` (one-to-many).
 	- `Car.photos` ↔ `Photo.car` (one-to-many).
 	- `Part.photos` ↔ `Photo.part` (one-to-many).
-- [ ] Make `Photo` belong to exactly one parent: either a car or a part.
-- [ ] Add foreign keys, indexes where useful, and cascade behavior for dependent records.
+- [x] Make `Photo` belong to exactly one parent: either a car or a part.
+- [x] Add foreign keys, indexes where useful, and cascade behavior for dependent records.
 
 ## 2. Pydantic schemas
 
