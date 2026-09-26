@@ -19,7 +19,7 @@ class Car(SQLModel, table=True):
     photos: List["Photo"] = Relationship(back_populates="car", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
 
 class Repair(SQLModel, table=True):
-    id: Optional[int] = Field(dafault=None, primary_key=True)
+    id: Optional[int] = Field(default=None, primary_key=True)
     car_id: int = Field(foreign_key="car.id")
     date : date
     description: str

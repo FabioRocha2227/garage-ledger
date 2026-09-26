@@ -14,11 +14,11 @@
 
 ## 2. Pydantic schemas
 
-- [ ] In `schemas.py`, define `CarCreate`, `PartCreate`, and `PhotoCreate` (request data only).
-- [ ] Define `CarRead`, `PartRead`, and `PhotoRead` (including IDs and stored relative paths).
-- [ ] Include nested `photos` on car/part responses and nested `parts` on car responses.
-- [ ] Enable ORM/model serialization (`Config.from_attributes = True` for Pydantic v2).
-- [ ] Add required-field, length, and numeric validation.
+- [x] In `schemas.py`, define `CarCreate`, `PartCreate`, and `PhotoCreate` (request data only).
+- [x] Define `CarRead`, `PartRead`, and `PhotoRead` (including IDs and stored relative paths).
+- [x] Include nested `photos` on car/part responses and nested `parts` on car responses.
+- [x] Enable ORM/model serialization (`Config.from_attributes = True` for Pydantic v2).
+- [x] Add required-field, length, and numeric validation.
 
 ## 3. CRUD layer
 
@@ -30,7 +30,7 @@
 
 ## 4. API routers
 
-- [ ] `routers/cars.py`: `GET /cars`, `GET /cars/{id}`, `POST /cars`, `PUT /cars/{id}`, `DELETE /cars/{id}`.
+- [X] `routers/cars.py`: `GET /cars`, `GET /cars/{id}`, `POST /cars`, `PUT /cars/{id}`, `DELETE /cars/{id}`.
 - [ ] `routers/parts.py`: the same CRUD endpoints plus `GET /cars/{id}/parts`.
 - [ ] `routers/photos.py`:
 	- `POST /photos` with `UploadFile` and exactly one of `car_id` or `part_id`.

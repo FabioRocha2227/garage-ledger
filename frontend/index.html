@@ -1,18 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Garage Ledger</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Garage Ledger</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/dashboard.css">
 </head>
 <body>
-	<main>
-		<h1>Garage Ledger</h1>
-		<p>Test page is working.</p>
-		<button type="button" onclick="document.getElementById('status').textContent = 'Button clicked!'">
-			Test interaction
-		</button>
-		<p id="status" aria-live="polite">Ready.</p>
-	</main>
+<div class="app">
+  <div class="side">
+    <p class="brand">Garage<span>Ledger</span></p>
+    <p class="tagline">buy · fix · sell</p>
+    <nav id="nav"></nav>
+  </div>
+  <main id="main">Loading…</main>
+</div>
+
+<!-- Shared state/helpers first, page modules next, nav + entry point last -->
+<script src="js/state.js"></script>
+<script src="js/cars.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
