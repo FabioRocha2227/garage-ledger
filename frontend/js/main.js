@@ -8,7 +8,7 @@ const NAV = [
   ['dashboard', 'Dashboard'],
   ['cars', 'Cars'],
   // ['services', 'Service Jobs'], // API route not implemented yet.
-  // ['parts', 'Parts Inventory'], // API route not implemented yet.
+  ['parts', 'Parts Inventory'],
   // ['finances', 'Finances'], // API route not implemented yet.
 ];
 
@@ -42,10 +42,9 @@ async function refresh() {
   } else if (view === 'cars') {
     cars = await api('/cars');
     m.innerHTML = activeCarId ? renderCarDetail(cars.find(c => c.id === activeCarId)) : renderCars();
-  // Unsupported views remain commented out until their API routes exist.
-  // } else if (view === 'parts') {
-  //   parts = await api('/parts');
-  //   m.innerHTML = renderParts();
+  } else if (view === 'parts') {
+    parts = await api('/parts');
+    m.innerHTML = renderParts();
   // } else if (view === 'services') {
   //   parts = await api('/parts');
   //   services = await api('/services');

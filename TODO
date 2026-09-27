@@ -22,17 +22,17 @@
 
 ## 3. CRUD layer
 
-- [ ] In `crud.py`, implement plain functions for cars and parts:
+- [x] In `crud.py`, implement plain functions for cars and parts:
 	`create`, `list`, `get`, `update`, and `delete`.
-- [ ] Add photo create, list, and delete helpers.
-- [ ] Return `None` for missing records and let routers convert that to HTTP 404.
-- [ ] Commit, refresh, and roll back transactions consistently.
+- [x] Add photo create, list, and delete helpers.
+- [x] Return `None` for missing records and let routers convert that to HTTP 404.
+- [x] Commit, refresh, and roll back transactions consistently.
 
 ## 4. API routers
 
 - [X] `routers/cars.py`: `GET /cars`, `GET /cars/{id}`, `POST /cars`, `PUT /cars/{id}`, `DELETE /cars/{id}`.
-- [ ] `routers/parts.py`: the same CRUD endpoints plus `GET /cars/{id}/parts`.
-- [ ] `routers/photos.py`:
+- [x] `routers/parts.py`: the same CRUD endpoints plus `GET /cars/{id}/parts`.
+- [] `routers/photos.py`:
 	- `POST /photos` with `UploadFile` and exactly one of `car_id` or `part_id`.
 	- `GET /cars/{id}/photos` and `GET /parts/{id}/photos`.
 	- `DELETE /photos/{id}` to remove both the database row and file.

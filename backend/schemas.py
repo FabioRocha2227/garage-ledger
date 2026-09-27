@@ -4,7 +4,13 @@ is allowed to send in when creating/updating something."""
 
 from datetime import date
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
+
+
+def _require_number(value):
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError("must be a number")
+    return value
 
 class CarIn(BaseModel):
     name: str
@@ -12,14 +18,20 @@ class CarIn(BaseModel):
     purchase_date: date
     purchase_price: float = 0
 
+    _purchase_price_must_be_number = field_validator("purchase_price", mode="before")(_require_number)
+
 class RepairIn(BaseModel):
     date:date
     description: str
     cost: float = 0
 
+    _cost_must_be_number = field_validator("cost", mode="before")(_require_number)
+
 class ExpenseIn(BaseModel):
     description: str
     cost: float = 0
+
+    _cost_must_be_number = field_validator("cost", mode="before")(_require_number)
 
 class PartIn(BaseModel):
     name: str
@@ -36,6 +48,8 @@ class SaleIn(BaseModel):
     sale_date: date
     sale_price: float
     sale_buyer: Optional[str] = None
+
+    _sale_price_must_be_number = field_validator("sale_price", mode="before")(_require_number)
 
 class ServiceJobIn(BaseModel):
     date: date
