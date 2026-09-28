@@ -11,7 +11,7 @@ let showAddPartForm = false;
 
 function renderParts() {
   const sorted = [...parts].sort((a, b) => a.name.localeCompare(b.name));
-  const consumables = sorted.filter(p => p.category !== 'tool');
+  const consumables = sorted.filter(p => p.category !== 'tool' && p.stock > 0);
   const tools = sorted.filter(p => p.category === 'tool');
   const d = inventoryValues(consumables, tools);
 

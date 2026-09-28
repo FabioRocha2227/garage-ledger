@@ -3,7 +3,7 @@ models.py defines the database tables, this file defines what a client
 is allowed to send in when creating/updating something."""
 
 from datetime import date
-from typing import Optional
+from typing import List, Optional
 from pydantic import BaseModel, field_validator
 
 
@@ -59,5 +59,6 @@ class ServiceJobIn(BaseModel):
     price: float = 0
     labor_cost: float = 0
     notes: Optional[str] = None
+    parts_used: List[PartUsageIn] = []
 
 

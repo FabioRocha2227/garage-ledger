@@ -1,0 +1,154 @@
+:root{
+  --bg:#1b1d21; --panel:#232529; --panel2:#2a2d32; --line:#3a3d43;
+  --text:#e9e8e4; --sub:#9a9da4; --accent:#e0611e; --accent2:#f0863f;
+  --good:#5fb383; --bad:#d5615a; --mono:'SF Mono','Roboto Mono',Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; font-size:15px; line-height:1.5}
+
+/* layout */
+.app{display:flex; min-height:100%}
+.side{width:200px; flex:0 0 200px; background:var(--panel); border-right:1px solid var(--line); padding:20px 14px; position:sticky; top:0; height:100vh}
+main{flex:1; padding:28px 32px; max-width:1100px; overflow-x:auto}
+
+/* sidebar / nav */
+.brand{font-size:18px; font-weight:700; margin:0 0 2px 4px}
+.brand span{color:var(--accent)}
+.tagline{font-size:12px; color:var(--sub); margin:0 0 24px 4px}
+nav button{display:block; width:100%; text-align:left; background:none; border:none; color:var(--sub); font-size:14px; padding:9px 10px; border-radius:6px; cursor:pointer; margin-bottom:2px}
+nav button:hover{background:var(--panel2); color:var(--text)}
+nav button.active{background:var(--accent); color:#fff}
+
+/* headings */
+h1{font-size:22px; margin:0 0 4px}
+.sub{color:var(--sub); font-size:13px; margin:0 0 22px}
+
+/* stat cards */
+.grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:26px}
+.stat{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:14px 16px}
+.stat .label{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--sub); margin-bottom:6px}
+.stat .num{font-family:var(--mono); font-size:22px; font-weight:600}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+
+/* tables */
+table{width:100%; border-collapse:collapse; font-size:14px}
+th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--sub); padding:8px 10px; border-bottom:1px solid var(--line)}
+td{padding:9px 10px; border-bottom:1px solid var(--line)}
+tr:hover td{background:var(--panel2)}
+.mono{font-family:var(--mono)}
+
+/* panels & forms */
+.panel{background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:18px; margin-bottom:20px}
+.panel h2{font-size:15px; margin:0 0 14px}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:10px}
+.field{display:flex; flex-direction:column; gap:4px}
+.field label{font-size:11px; color:var(--sub)}
+input,select{background:var(--bg); border:1px solid var(--line); color:var(--text); padding:8px 10px; border-radius:6px; font-size:14px; font-family:inherit}
+input:focus,select:focus{outline:1px solid var(--accent)}
+
+/* buttons & links */
+button.btn{background:var(--accent); color:#fff; border:none; padding:9px 16px; border-radius:6px; font-size:14px; cursor:pointer; font-weight:600}
+button.btn:hover{background:var(--accent2)}
+button.ghost{background:none; border:1px solid var(--line); color:var(--sub); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:13px}
+button.ghost:hover{border-color:var(--accent); color:var(--text)}
+.linklike{color:var(--accent2); cursor:pointer; text-decoration:none; font-weight:600}
+.linklike:hover{text-decoration:underline}
+.backbtn{color:var(--sub); cursor:pointer; font-size:13px; margin-bottom:14px; display:inline-block}
+.backbtn:hover{color:var(--text)}
+
+/* status badges */
+.status{display:inline-block; padding:2px 8px; border-radius:20px; font-size:11px; font-weight:600}
+.st-repair{background:#4a3520; color:#f0a860}
+.st-sold{background:#1e3a2c; color:var(--good)}
+
+/* misc */
+.empty{color:var(--sub); font-size:13px; padding:20px; text-align:center}
+.small{font-size:12px; color:var(--sub)}
+
+/* photos */
+.photos{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px}
+.photo{position:relative; width:110px; height:80px; border-radius:6px; overflow:hidden; border:1px solid var(--line)}
+.photo img{width:100%; height:100%; object-fit:cover; display:block}
+.photo .rm{position:absolute; top:2px; right:2px; background:rgba(0,0,0,.6); color:#fff; border:none; border-radius:4px; width:20px; height:20px; cursor:pointer; font-size:12px; line-height:1}
+.uploadbtn{display:inline-block; padding:8px 14px; border:1px dashed var(--line); border-radius:6px; color:var(--sub); font-size:13px; cursor:pointer}
+.uploadbtn:hover{border-color:var(--accent); color:var(--text)}
+
+/* mobile */
+@media(max-width:720px){
+  .app{flex-direction:column}
+  .side{width:100%; height:auto; position:static; display:flex; align-items:center; gap:8px; padding:12px 14px}
+  .brand,.tagline{display:none}
+  nav{display:flex; gap:4px; overflow-x:auto}
+  nav button{white-space:nowrap; margin-bottom:0}
+  main{padding:18px}
+}
+
+/* =======================================================================
+   Dashboard
+   ======================================================================= */
+
+.accent-text{color:var(--accent2)}
+
+.dash-head{display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:14px; margin-bottom:22px}
+.dash-head h1{margin-bottom:6px}
+.dash-head .sub{margin:0}
+.dash-actions{display:flex; gap:10px}
+
+.dash-stats{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+
+/* stat cards with a colored icon square, used only on the dashboard */
+.stat-icon{display:flex; align-items:flex-start; gap:12px}
+.icon-box{
+  width:38px; height:38px; flex:0 0 38px; border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:17px; font-weight:700;
+}
+.icon-orange{background:#4a2c18; color:var(--accent2)}
+.icon-blue{background:#1c2f42; color:#6fb3e0}
+.icon-purple{background:#302447; color:#b48be0}
+.icon-amber{background:#4a3c18; color:#e0c05f}
+.stat-icon .label{margin-bottom:4px}
+.stat-icon .num{font-size:20px}
+.stat-sub{font-size:12px; color:var(--sub); margin-top:2px}
+.stat-sub.neg{color:var(--bad)}
+
+/* two-column layout: main content + narrower side column */
+.dash-columns{display:grid; grid-template-columns:1fr 320px; gap:20px; align-items:start}
+.dash-main .panel:last-child, .dash-side .panel:last-child{margin-bottom:0}
+@media(max-width:900px){
+  .dash-columns{grid-template-columns:1fr}
+}
+
+.panel-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:14px}
+.panel-head h2{margin:0}
+.legend{display:flex; gap:14px; font-size:12px; color:var(--sub)}
+.legend span{display:inline-flex; align-items:center; gap:6px}
+.dot{width:8px; height:8px; border-radius:50%; display:inline-block}
+.dot-accent{background:var(--accent)}
+.dot-good{background:var(--good)}
+
+/* chart */
+.chart-svg{width:100%; height:auto; display:block}
+.chart-axis{font-size:10px; fill:var(--sub); font-family:var(--mono)}
+
+/* recent-cars table with a thumbnail per row */
+.dash-table td, .dash-table th{padding:10px}
+.dash-table tr{cursor:pointer}
+.veh-cell{display:flex; align-items:center; gap:10px}
+.veh-thumb{width:40px; height:32px; border-radius:5px; object-fit:cover; flex:0 0 40px; border:1px solid var(--line)}
+.veh-thumb-placeholder{display:flex; align-items:center; justify-content:center; background:var(--panel2); font-size:15px}
+
+/* quick ledger / cars-in-progress rows, shared shape */
+.ledger-row{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line)}
+.ledger-row:last-child{border-bottom:none}
+.ledger-icon{
+  width:30px; height:30px; border-radius:50%; flex:0 0 30px;
+  display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700;
+}
+.ledger-icon.in{background:#1e3a2c; color:var(--good)}
+.ledger-icon.out{background:#4a2420; color:var(--bad)}
+.ledger-text{flex:1; min-width:0}
+.ledger-title{font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.ledger-sub{font-size:11px; color:var(--sub)}
+.dash-fullwidth{width:100%; text-align:center; margin-top:12px}

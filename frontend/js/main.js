@@ -7,7 +7,7 @@
 const NAV = [
   ['dashboard', 'Dashboard'],
   ['cars', 'Cars'],
-  // ['services', 'Service Jobs'], // API route not implemented yet.
+  ['services', 'Service Jobs'],
   ['parts', 'Parts Inventory'],
   // ['finances', 'Finances'], // API route not implemented yet.
 ];
@@ -45,11 +45,11 @@ async function refresh() {
   } else if (view === 'parts') {
     parts = await api('/parts');
     m.innerHTML = renderParts();
-  // } else if (view === 'services') {
-  //   parts = await api('/parts');
-  //   services = await api('/services');
-  //   m.innerHTML = renderServices();
-  // } else if (view === 'finances') {
+  } else if (view === 'services') {
+    parts = await api('/parts');
+    services = await api('/services');
+    m.innerHTML = renderServices();
+  } else if (view === 'finances') {
   //   financeData = await api('/finances');
   //   m.innerHTML = renderFinances();
   }

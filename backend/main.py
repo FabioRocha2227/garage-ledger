@@ -9,7 +9,7 @@ from sqlmodel import Session, select
 from pydantic import BaseModel
 
 from backend.database import init_db, get_session, UPLOADS_DIR
-from backend.routers import cars, parts
+from backend.routers import cars, parts, services
 
 app = FastAPI(title = "Garage Ledger API")
 
@@ -27,6 +27,7 @@ def on_startup():
 
 app.include_router(cars.router)
 app.include_router(parts.router)
+app.include_router(services.router)
 
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
