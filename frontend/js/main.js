@@ -9,7 +9,7 @@ const NAV = [
   ['cars', 'Cars'],
   ['services', 'Service Jobs'],
   ['parts', 'Parts Inventory'],
-  // ['finances', 'Finances'], // API route not implemented yet.
+  ['finances', 'Finances'], 
 ];
 
 function renderNav() {
@@ -28,16 +28,7 @@ async function refresh() {
   renderNav();
   const m = document.getElementById('main');
   if (view === 'dashboard') {
-    cars = await api('/cars');
-    dashboardData = {
-      in_stock: cars.filter(c => c.sale_price == null).length,
-      total_profit: cars.reduce((sum, c) => sum + (c.profit || 0), 0),
-      tied_up: cars.filter(c => c.sale_price == null).reduce((sum, c) => sum + (c.cost || 0), 0),
-      service_jobs: 0,
-      service_revenue: 0,
-      avg_days: null,
-      recent: cars.slice(-5).reverse(),
-    };
+    dashboardData = await api('/dashboard');
     m.innerHTML = renderDashboard();
   } else if (view === 'cars') {
     cars = await api('/cars');
@@ -50,8 +41,8 @@ async function refresh() {
     services = await api('/services');
     m.innerHTML = renderServices();
   } else if (view === 'finances') {
-  //   financeData = await api('/finances');
-  //   m.innerHTML = renderFinances();
+    financeData = await api('/finances');
+    m.innerHTML = renderFinances();
   }
 }
 

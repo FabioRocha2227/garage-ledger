@@ -8,8 +8,9 @@ from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select
 from pydantic import BaseModel
 
+from backend.routers import backup as backup_router
 from backend.database import init_db, get_session, UPLOADS_DIR
-from backend.routers import cars, parts, services
+from backend.routers import cars, finances, parts, services
 
 app = FastAPI(title = "Garage Ledger API")
 
@@ -25,9 +26,18 @@ app.add_middleware(
 def on_startup():
     init_db()
 
+@app.get("/health")
+def health():
+    """Used by launcher.py to detect an already-running instance instead
+    of crashing with a "port in use" error."""
+    return {"status": "ok"}
+
 app.include_router(cars.router)
 app.include_router(parts.router)
 app.include_router(services.router)
+app.include_router(finances.router)
+app.include_router(backup_router.router)
+
 
 app.mount("/uploads", StaticFiles(directory=UPLOADS_DIR), name="uploads")
 
