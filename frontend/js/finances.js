@@ -160,7 +160,7 @@ function renderFinances() {
       </div>
     </div>
 
-    <div class="panel">
+    <div class="panel finance-transactions">
       <div class="panel-head">
         <h2>Recent transactions</h2>
         <div class="filter-tabs">

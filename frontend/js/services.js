@@ -28,7 +28,7 @@ function renderServices() {
 
     ${showLogServiceForm ? renderLogServiceForm() : ''}
 
-    ${sorted.length === 0 ? '<div class="empty">No service jobs logged yet.</div>' : sorted.map(serviceCard).join('')}
+    ${sorted.length === 0 ? '<div class="empty">No service jobs logged yet.</div>' : `<div class="service-list">${sorted.map(serviceCard).join('')}</div>`}
   `;
 }
 
@@ -70,28 +70,33 @@ function toggleLogServiceForm() {
 
 function serviceCard(j) {
   return `
-    <div class="panel">
-      <div class="row" style="justify-content:space-between; align-items:flex-start">
-        <div>
-          <h2 style="margin-bottom:4px">${esc(j.description)}</h2>
-          <p class="small" style="margin:0">
-            ${j.date} ${j.customer ? '· ' + esc(j.customer) : ''} ${j.vehicle ? '· ' + esc(j.vehicle) : ''}
-          </p>
+    <details class="service-item">
+      <summary class="service-summary">
+        <div class="service-identity">
+          <span class="service-date mono">${j.date}</span>
+          <strong class="service-title">${esc(j.description)}</strong>
+          <span class="service-context">${[j.customer, j.vehicle].filter(Boolean).map(esc).join(' · ') || 'No customer or vehicle recorded'}</span>
         </div>
-        <button class="ghost" onclick="delService(${j.id})">Remove</button>
+        <div class="service-results">
+          <span><small>Charged</small><strong>€${fmt(j.price)}</strong></span>
+          <span><small>Cost</small><strong>€${fmt(j.cost)}</strong></span>
+          <span class="${j.profit >= 0 ? 'pos' : 'neg'}"><small>Profit</small><strong>${j.profit >= 0 ? '+' : ''}€${fmt(j.profit)}</strong></span>
+        </div>
+        <span class="service-chevron" aria-hidden="true">›</span>
+      </summary>
+      <div class="service-details">
+        <div class="service-details-head">
+          <span class="small">Job details</span>
+          <button class="ghost" onclick="delService(${j.id})">Remove job</button>
+        </div>
+        ${j.parts_used.length === 0 ? '<p class="small service-empty-detail">No parts recorded for this job.</p>' : `
+        <table><thead><tr><th>Part used</th><th>Qty</th><th>Cost</th><th></th></tr></thead><tbody>
+        ${j.parts_used.map(p => `<tr><td>${esc(p.part_name)}</td><td class="mono">${p.qty}</td><td class="mono">€${fmt(p.cost)}</td>
+        <td><button class="ghost" onclick="delServicePartUsed(${p.id})">Remove</button></td></tr>`).join('')}
+        </tbody></table>`}
+        ${j.notes ? `<p class="small service-notes">${esc(j.notes)}</p>` : ''}
       </div>
-      <div class="grid" style="margin:14px 0 10px">
-        <div class="stat"><div class="label">Price charged</div><div class="num">€${fmt(j.price)}</div></div>
-        <div class="stat"><div class="label">Total cost</div><div class="num">€${fmt(j.cost)}</div></div>
-        <div class="stat"><div class="label">Profit</div><div class="num ${j.profit >= 0 ? 'pos' : 'neg'}">${j.profit >= 0 ? '+' : ''}€${fmt(j.profit)}</div></div>
-      </div>
-      ${j.parts_used.length === 0 ? '' : `
-      <table><thead><tr><th>Part used</th><th>Qty</th><th>Cost</th><th></th></tr></thead><tbody>
-      ${j.parts_used.map(p => `<tr><td>${esc(p.part_name)}</td><td class="mono">${p.qty}</td><td class="mono">€${fmt(p.cost)}</td>
-      <td><button class="ghost" onclick="delServicePartUsed(${p.id})">Remove</button></td></tr>`).join('')}
-      </tbody></table>`}
-      ${j.notes ? `<p class="small" style="margin-top:10px">${esc(j.notes)}</p>` : ''}
-    </div>
+    </details>
   `;
 }
 

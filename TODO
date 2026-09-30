@@ -70,5 +70,7 @@
 - [ ] Update the frontend to use the API endpoints and returned relative/static photo URLs.
 - [ ] Replace mock data and confirm the car, part, and photo workflows end to end.
 
-Minimize option on jobs, makes it easier to understand
 color scheme in jobs and 
+
+parts in stock to be used should not appear if 0 in stock
+alterar cor do income e expenses nas financas tab

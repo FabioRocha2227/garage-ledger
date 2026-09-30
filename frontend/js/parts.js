@@ -125,10 +125,10 @@ function renderPartsTable(items, isTool) {
             <td class="mono">€${fmt(p.unit_cost)}</td>
             <td class="small">${p.supplier ? esc(p.supplier) : '—'}</td>
             <td>${partThumb(p)}</td>
-            <td class="row-actions">
+            <td><div class="row-actions">
               <label class="icon-btn" title="Add photo">＋<input type="file" accept="image/*" style="display:none" onchange="uploadPartPhoto(${p.id}, event)"></label>
               <button class="icon-btn" title="Remove" onclick="delPart(${p.id})">🗑️</button>
-            </td>
+            </div></td>
           </tr>`).join('')}
         </tbody>
       </table>
