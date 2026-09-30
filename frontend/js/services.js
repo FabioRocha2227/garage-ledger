@@ -21,9 +21,15 @@ function renderServices() {
       <button class="btn" onclick="toggleLogServiceForm()">${showLogServiceForm ? 'Cancel' : '+ Add job'}</button>
     </div>
     <div class="grid">
-      <div class="stat"><div class="label">Jobs done</div><div class="num">${services.length}</div></div>
-      <div class="stat"><div class="label">Revenue from jobs</div><div class="num">€${fmt(totalRevenue)}</div></div>
-      <div class="stat"><div class="label">Profit from jobs</div><div class="num ${totalProfit >= 0 ? 'pos' : 'neg'}">€${fmt(totalProfit)}</div></div>
+      <div class="stat stat-icon service-stat service-stat-count">
+        <div class="icon-box icon-service">✓</div><div><div class="label">Jobs done</div><div class="num">${services.length}</div></div>
+      </div>
+      <div class="stat stat-icon service-stat service-stat-revenue">
+        <div class="icon-box icon-service">€</div><div><div class="label">Revenue from jobs</div><div class="num">€${fmt(totalRevenue)}</div></div>
+      </div>
+      <div class="stat stat-icon service-stat service-stat-profit">
+        <div class="icon-box ${totalProfit >= 0 ? 'icon-profit-positive' : 'icon-profit-negative'}">↗</div><div><div class="label">Profit from jobs</div><div class="num ${totalProfit >= 0 ? 'pos' : 'neg'}">€${fmt(totalProfit)}</div></div>
+      </div>
     </div>
 
     ${showLogServiceForm ? renderLogServiceForm() : ''}
@@ -35,7 +41,7 @@ function renderServices() {
 function renderLogServiceForm() {
   const availableParts = parts.filter(p => p.category !== 'tool' && p.stock > 0);
   return `
-    <div class="panel">
+    <div class="panel service-form">
       <h2>Log a job</h2>
       <div class="row">
         <div class="field"><label>Date</label><input id="jf-date" type="date" value="${today()}"></div>
@@ -78,7 +84,7 @@ function serviceCard(j) {
           <span class="service-context">${[j.customer, j.vehicle].filter(Boolean).map(esc).join(' · ') || 'No customer or vehicle recorded'}</span>
         </div>
         <div class="service-results">
-          <span><small>Charged</small><strong>€${fmt(j.price)}</strong></span>
+          <span class="service-revenue"><small>Charged</small><strong>€${fmt(j.price)}</strong></span>
           <span><small>Cost</small><strong>€${fmt(j.cost)}</strong></span>
           <span class="${j.profit >= 0 ? 'pos' : 'neg'}"><small>Profit</small><strong>${j.profit >= 0 ? '+' : ''}€${fmt(j.profit)}</strong></span>
         </div>

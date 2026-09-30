@@ -24,19 +24,25 @@ function renderParts() {
       <button class="btn" onclick="toggleAddPartForm()">${showAddPartForm ? 'Cancel' : '+ Add item'}</button>
     </div>
     <div class="grid inventory-summary">
-      <div class="stat"><div class="label">Inventory value</div><div class="num">€${fmt(d.totalValue)}</div></div>
-      <div class="stat"><div class="label">Parts in stock</div><div class="num">${fmt(d.partsUnits)}</div><div class="stat-sub">${d.partsItems} item${d.partsItems === 1 ? '' : 's'}</div></div>
-      <div class="stat"><div class="label">Tools &amp; equipment</div><div class="num">${fmt(d.toolUnits)}</div><div class="stat-sub">${d.toolItems} item${d.toolItems === 1 ? '' : 's'}</div></div>
+      <div class="stat stat-icon inventory-stat inventory-stat-value">
+        <div class="icon-box icon-blue">€</div><div><div class="label">Inventory value</div><div class="num">€${fmt(d.totalValue)}</div></div>
+      </div>
+      <div class="stat stat-icon inventory-stat inventory-stat-parts">
+        <div class="icon-box icon-blue">▦</div><div><div class="label">Parts in stock</div><div class="num">${fmt(d.partsUnits)}</div><div class="stat-sub">${d.partsItems} item${d.partsItems === 1 ? '' : 's'}</div></div>
+      </div>
+      <div class="stat stat-icon inventory-stat inventory-stat-tools">
+        <div class="icon-box icon-amber">⚒</div><div><div class="label">Tools &amp; equipment</div><div class="num">${fmt(d.toolUnits)}</div><div class="stat-sub">${d.toolItems} item${d.toolItems === 1 ? '' : 's'}</div></div>
+      </div>
     </div>
     ${showAddPartForm ? renderAddPartForm() : ''}
 
-    <div class="inventory-section">
-      <div class="inventory-section-head"><h2>Parts <span class="small">(${consumables.length})</span></h2></div>
+    <div class="inventory-section inventory-parts-section">
+      <div class="inventory-section-head inventory-parts-head"><h2>Parts <span class="small">(${consumables.length})</span></h2></div>
       ${renderPartsTable(consumables, false)}
     </div>
 
-    <div class="inventory-section">
-      <div class="inventory-section-head"><h2>Tools &amp; Equipment <span class="small">(${tools.length})</span></h2></div>
+    <div class="inventory-section inventory-tools-section">
+      <div class="inventory-section-head inventory-tools-head"><h2>Tools &amp; Equipment <span class="small">(${tools.length})</span></h2></div>
       ${renderPartsTable(tools, true)}
     </div>
 

@@ -1,7 +1,7 @@
 :root{
   --bg:#1b1d21; --panel:#232529; --panel2:#2a2d32; --line:#3a3d43;
   --text:#e9e8e4; --sub:#9a9da4; --accent:#e0611e; --accent2:#f0863f;
-  --good:#5fb383; --bad:#d5615a; --mono:'SF Mono','Roboto Mono',Consolas,monospace;
+  --good:#5fb383; --bad:#d5615a; --service:#5fd0c0; --service-bg:#1c3a3a; --inventory:#6fb3e0; --tool:#e0c05f; --mono:'SF Mono','Roboto Mono',Consolas,monospace;
 }
 *{box-sizing:border-box}
 html,body{height:100%;margin:0}
@@ -68,24 +68,38 @@ button.ghost:hover{border-color:var(--accent); color:var(--text)}
 
 /* compact, expandable service-job list */
 .service-list{display:flex; flex-direction:column; gap:8px}
-.service-item{background:var(--panel); border:1px solid var(--line); border-radius:8px; overflow:hidden}
+.service-item{background:var(--panel); border:1px solid var(--line); border-left:3px solid var(--service); border-radius:8px; overflow:hidden}
 .service-summary{display:grid; grid-template-columns:minmax(220px,1fr) auto 18px; gap:20px; align-items:center; padding:13px 16px; cursor:pointer; list-style:none}
 .service-summary::-webkit-details-marker{display:none}
 .service-summary:hover{background:var(--panel2)}
 .service-identity{display:grid; grid-template-columns:auto minmax(0,1fr); gap:2px 12px; min-width:0; align-items:center}
-.service-date{grid-row:span 2; color:var(--sub); font-size:12px}
+.service-date{grid-row:span 2; color:var(--service); font-size:12px}
 .service-title{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
 .service-context{grid-column:2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--sub); font-size:12px}
 .service-results{display:flex; gap:22px; align-items:center}
 .service-results span{display:flex; flex-direction:column; align-items:flex-end; min-width:70px}
 .service-results small{color:var(--sub); font-size:10px; text-transform:uppercase; letter-spacing:.05em}
 .service-results strong{font-family:var(--mono); font-size:13px; font-weight:600}
+.service-revenue strong{color:var(--service)}
 .service-chevron{color:var(--sub); font-size:24px; line-height:1; transform:rotate(0); transition:transform .15s ease}
 .service-item[open] .service-chevron{transform:rotate(90deg); color:var(--accent2)}
 .service-details{border-top:1px solid var(--line); padding:14px 16px 16px}
 .service-details-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:8px}
 .service-empty-detail{margin:4px 0 0}
 .service-notes{border-top:1px solid var(--line); margin:12px 0 0; padding-top:10px}
+.service-form{border-left:3px solid var(--service)}
+.service-stat{border-left:3px solid var(--service)}
+.service-stat-revenue .num{color:var(--service)}
+.service-stat-profit{border-left-color:var(--good)}
+.icon-service{background:var(--service-bg); color:var(--service)}
+.icon-profit-positive{background:#1e3a2c; color:var(--good)}
+.icon-profit-negative{background:#4a2420; color:var(--bad)}
+.inventory-stat{min-height:100px; align-items:center; border-top:2px solid var(--inventory)}
+.inventory-stat-tools{border-top-color:var(--tool)}
+.inventory-stat .icon-box{width:42px; height:42px; border-radius:10px; font-size:18px}
+.inventory-stat .label{margin-bottom:5px}
+.inventory-stat .num{font-size:24px; line-height:1.1}
+.inventory-stat .stat-sub{margin-top:5px}
 .finance-transactions{margin-top:20px}
 
 @media(max-width:720px){
@@ -226,7 +240,11 @@ button.ghost:hover{border-color:var(--accent); color:var(--text)}
 .inventory-section{margin-top:24px}
 .inventory-section:first-of-type{margin-top:0}
 .inventory-section-head h2{font-size:15px; margin:0 0 10px}
+.inventory-parts-head h2{color:var(--inventory)}
+.inventory-tools-head h2{color:var(--tool)}
 .inventory-table-panel{padding:0; overflow-x:auto}
+.inventory-parts-section .inventory-table-panel{border-top:3px solid var(--inventory)}
+.inventory-tools-section .inventory-table-panel{border-top:3px solid var(--tool)}
 .inventory-table-panel td{vertical-align:middle}
 .inventory-thumb{width:46px; height:34px; border-radius:5px; object-fit:cover; display:block; border:1px solid var(--line)}
 .inventory-thumb-placeholder{display:flex; align-items:center; justify-content:center; background:var(--panel2); color:var(--sub); font-size:19px}
