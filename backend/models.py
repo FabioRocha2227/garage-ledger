@@ -1,5 +1,6 @@
 from typing import Optional, List
-from datetime import date
+from datetime import date, datetime
+from datetime import timezone
 from sqlmodel import SQLModel, Field, Relationship
 
 class Car(SQLModel, table=True):
@@ -8,8 +9,10 @@ class Car(SQLModel, table=True):
     plate: Optional[str] = None
     purchase_date: date
     purchase_price: float=0
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     sale_date: Optional[date] = None
+    sale_at: Optional[datetime] = None
     sale_price: Optional[float] = None
     sale_buyer: Optional[str] = None
 
@@ -22,6 +25,7 @@ class Repair(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     car_id: int = Field(foreign_key="car.id")
     date : date
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     description: str
     cost: float=0
     car: Car = Relationship(back_populates="repairs")
@@ -29,6 +33,8 @@ class Repair(SQLModel, table=True):
 class Expense(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     car_id: int = Field(foreign_key="car.id")
+    date: date
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     description: str
     cost: float = 0
     car: Car = Relationship(back_populates="expenses")
@@ -47,6 +53,8 @@ class PartUsage(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     car_id: int = Field(foreign_key="car.id")
     part_id: Optional[int] = Field(default=None, foreign_key="part.id")
+    date: date
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     part_name: str
     qty: int = 1
     cost: float = 0
@@ -55,6 +63,7 @@ class PartUsage(SQLModel, table=True):
 class ServiceJob(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     date: date
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     customer: Optional[str] = None
     vehicle: Optional[str] = None  
     description: str
@@ -67,6 +76,7 @@ class ServiceJob(SQLModel, table=True):
 class ServicePartUsage(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     service_id: int = Field(foreign_key="servicejob.id")
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     part_id: Optional[int] = Field(default=None, foreign_key="part.id")
     part_name: str
     qty: int = 1

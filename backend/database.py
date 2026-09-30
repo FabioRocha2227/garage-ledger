@@ -17,6 +17,36 @@ def _migrate(conn):
     if "category" not in cols:
         conn.execute(text("ALTER TABLE part ADD COLUMN category TEXT DEFAULT 'part'"))
 
+    for table in ("expense", "partusage"):
+        table_cols = [row[1] for row in conn.execute(text(f"PRAGMA table_info({table})")).fetchall()]
+        if "date" not in table_cols:
+            conn.execute(text(f"ALTER TABLE {table} ADD COLUMN date DATE"))
+            conn.execute(text(
+                f"UPDATE {table} SET date = "
+                "(SELECT purchase_date FROM car WHERE car.id = " + table + ".car_id) "
+                "WHERE date IS NULL"
+            ))
+
+    for table in ("car", "repair", "expense", "partusage", "servicejob", "servicepartusage"):
+        table_cols = [row[1] for row in conn.execute(text(f"PRAGMA table_info({table})")).fetchall()]
+        if "created_at" not in table_cols:
+            conn.execute(text(f"ALTER TABLE {table} ADD COLUMN created_at DATETIME"))
+        if table == "car":
+            conn.execute(text("UPDATE car SET created_at = datetime(purchase_date) WHERE created_at IS NULL"))
+        elif table == "servicepartusage":
+            conn.execute(text(
+                "UPDATE servicepartusage SET created_at = "
+                "(SELECT datetime(date) FROM servicejob WHERE servicejob.id = servicepartusage.service_id) "
+                "WHERE created_at IS NULL"
+            ))
+        else:
+            conn.execute(text(f"UPDATE {table} SET created_at = datetime(date) WHERE created_at IS NULL"))
+
+    car_cols = [row[1] for row in conn.execute(text("PRAGMA table_info(car)")).fetchall()]
+    if "sale_at" not in car_cols:
+        conn.execute(text("ALTER TABLE car ADD COLUMN sale_at DATETIME"))
+        conn.execute(text("UPDATE car SET sale_at = datetime(sale_date) WHERE sale_date IS NOT NULL"))
+
 
 def init_db():
     import backend.models  # noqa: F401  (ensures models are registered)

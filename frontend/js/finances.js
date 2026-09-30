@@ -153,7 +153,7 @@ function renderFinances() {
             </select>
           </div>
           ${series.length === 0 ? '<div class="empty">Not enough transactions yet for a trend.</div>' : renderCashFlowChart(series)}
-          <div class="legend" style="margin-top:10px"><span><i class="dot dot-accent"></i>Income</span><span><i class="dot" style="background:var(--bad)"></i>Expenses</span></div>
+          <div class="legend" style="margin-top:10px"><span><i class="dot dot-good"></i>Income</span><span><i class="dot" style="background:var(--bad)"></i>Expenses</span></div>
         </div>
       </div>
       <div class="dash-side">
@@ -177,11 +177,11 @@ function renderFinances() {
         </div>
       </div>
       ${filteredEntries.length === 0 ? '<div class="empty">No transactions match this filter.</div>' : `
-      <table class="dash-table"><thead><tr><th>Date</th><th>Category</th><th>Description</th><th>Car / Customer</th><th>Amount</th></tr></thead><tbody>
+      <table class="dash-table"><thead><tr><th>Date / time</th><th>Category</th><th>Description</th><th>Car / Customer</th><th>Amount</th></tr></thead><tbody>
       ${filteredEntries.slice(0, 60).map(e => {
         const cat = txCategory(e);
         return `<tr>
-          <td class="mono small">${e.date}</td>
+          <td class="mono small">${transactionDateTime(e)}</td>
           <td><span class="cat-badge ${cat.cls}">${esc(cat.label)}</span></td>
           <td>${esc(cat.desc || '—')}</td>
           <td class="small">${esc(e.car)}</td>
@@ -201,6 +201,12 @@ function renderFinances() {
       <div id="fin-backups"><div class="empty">Loading backups…</div></div>
     </div>
   `;
+}
+
+function transactionDateTime(entry) {
+  if (!entry.timestamp) return entry.date;
+  const display = entry.timestamp.replace('T', ' ').slice(0, 16);
+  return display.endsWith(' 00:00') ? entry.date : display;
 }
 
 function transactionGroup(entry) {
@@ -280,7 +286,7 @@ function renderCashFlowChart(series) {
 
   return `<svg viewBox="0 0 ${W} ${H}" class="chart-svg" preserveAspectRatio="xMidYMid meet">
     ${grid}
-    <path d="${pathFor('income')}" fill="none" stroke="var(--accent)" stroke-width="2"/>${dotsFor('income', 'var(--accent)')}
+    <path d="${pathFor('income')}" fill="none" stroke="var(--good)" stroke-width="2"/>${dotsFor('income', 'var(--good)')}
     <path d="${pathFor('expense')}" fill="none" stroke="var(--bad)" stroke-width="2"/>${dotsFor('expense', 'var(--bad)')}
     ${labels}
   </svg>`;

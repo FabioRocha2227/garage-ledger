@@ -37,8 +37,8 @@ def car_out(car: Car) -> dict:
         "cost": cost,
         "profit": profit,
         "repairs": [{"id": r.id, "date": r.date, "description": r.description, "cost": r.cost} for r in car.repairs],
-        "expenses": [{"id": e.id, "description": e.description, "cost": e.cost} for e in car.expenses],
-        "parts_used": [{"id": p.id, "part_id": p.part_id, "part_name": p.part_name, "qty": p.qty, "cost": p.cost} for p in car.parts_used],
+        "expenses": [{"id": e.id, "date": e.date or car.purchase_date, "description": e.description, "cost": e.cost} for e in car.expenses],
+        "parts_used": [{"id": p.id, "date": p.date or car.purchase_date, "part_id": p.part_id, "part_name": p.part_name, "qty": p.qty, "cost": p.cost} for p in car.parts_used],
         "photos": [{"id": ph.id, "url": f"/uploads/{ph.filename}"} for ph in car.photos],
     }
 

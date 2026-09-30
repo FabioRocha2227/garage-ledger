@@ -29,7 +29,11 @@ async function api(path, opts) {
 
 // Formatting helpers
 const fmt = n => (Number(n) || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => {
+  const now = new Date();
+  const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+  return local.toISOString().slice(0, 10);
+};
 
 function esc(s) {
   return String(s || '').replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));

@@ -2,6 +2,8 @@
 customer's own car -- not a car he bought to flip. Money in is the price
 charged; money out is labor cost plus whatever parts got used."""
 
+from datetime import datetime
+from datetime import timezone
 from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import Session, select
 
@@ -30,13 +32,14 @@ def create_service(data: ServiceJobIn, session: Session = Depends(get_session)):
             raise HTTPException(400, f"Not enough stock for {part.name}.")
         selected_parts.append((usage, part))
 
-    service = ServiceJob(**data.dict(exclude={"parts_used"}))
+    service = ServiceJob(**data.dict(exclude={"parts_used"}), created_at=datetime.now(timezone.utc))
     session.add(service)
     session.flush()
     for usage, part in selected_parts:
         part.stock -= usage.qty
         session.add(ServicePartUsage(
             service_id=service.id,
+            created_at=datetime.now(timezone.utc),
             part_id=part.id,
             part_name=part.name,
             qty=usage.qty,

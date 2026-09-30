@@ -2,6 +2,8 @@
 repairs, other expenses, parts used, a sale, and photos against it."""
 
 import os
+from datetime import date, datetime
+from datetime import timezone
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlmodel import Session, select
 
@@ -22,7 +24,7 @@ def list_cars(session: Session = Depends(get_session)):
 @router.post("/api/cars")
 def create_car(data: CarIn, session: Session = Depends(get_session)):
     """Create a new car in the garage."""
-    car = Car(**data.dict())
+    car = Car(**data.dict(), created_at=datetime.now(timezone.utc))
     session.add(car)
     session.commit()
     session.refresh(car)
@@ -51,7 +53,7 @@ def delete_car(car_id: int, session: Session = Depends(get_session)):
 @router.post("/api/cars/{car_id}/repairs")
 def add_repair(car_id: int, data: RepairIn, session: Session = Depends(get_session)):
     car = get_car_or_404(session, car_id)
-    session.add(Repair(car_id=car.id, **data.dict()))
+    session.add(Repair(car_id=car.id, created_at=datetime.now(timezone.utc), **data.dict()))
     session.commit()
     return car_out(get_car_or_404(session, car_id))
 
@@ -72,7 +74,7 @@ def delete_repair(repair_id: int, session: Session = Depends(get_session)):
 @router.post("/api/cars/{car_id}/expenses")
 def add_expense(car_id: int, data: ExpenseIn, session: Session = Depends(get_session)):
     car = get_car_or_404(session, car_id)
-    session.add(Expense(car_id= car.id, **data.dict()))
+    session.add(Expense(car_id=car.id, date=data.date or date.today(), created_at=datetime.now(timezone.utc), description=data.description, cost=data.cost))
     session.commit()
     return car_out(get_car_or_404(session, car_id))
 
@@ -92,6 +94,7 @@ def delete_expense(expense_id: int, session: Session = Depends(get_session)):
 def set_sale(car_id: int, data: SaleIn, session: Session = Depends(get_session)):
     car = get_car_or_404(session, car_id)
     car.sale_date = data.sale_date
+    car.sale_at = datetime.now(timezone.utc)
     car.sale_price = data.sale_price
     car.sale_buyer = data.sale_buyer
     session.add(car)
@@ -116,8 +119,18 @@ def use_part(car_id: int, data: PartUsageIn, session: Session = Depends(get_sess
     part = get_part_or_404(session, data.part_id)
     if part.category != "part":
         raise HTTPException(400, "That's a tool, not a consumable part — it can't be used up on a car.")
+    if data.qty < 1 or part.stock < data.qty:
+        raise HTTPException(400, "Not enough stock for this part.")
     part.stock -= data.qty
-    usage = PartUsage(car_id=car.id, part_id=part.id, part_name=part.name, qty=data.qty, cost=data.qty * part.unit_cost)
+    usage = PartUsage(
+        car_id=car.id,
+        part_id=part.id,
+        date=data.date or date.today(),
+        created_at=datetime.now(timezone.utc),
+        part_name=part.name,
+        qty=data.qty,
+        cost=data.qty * part.unit_cost,
+    )
     session.add(part)
     session.add(usage)
     session.commit()

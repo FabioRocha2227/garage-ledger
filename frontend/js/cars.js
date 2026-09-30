@@ -282,14 +282,14 @@ function renderCarDetail(c) {
     <div class="panel">
       <h2>Parts used from inventory</h2>
       ${c.parts_used.length === 0 ? '<div class="empty">No parts recorded.</div>' : `
-      <table><thead><tr><th>Part</th><th>Qty</th><th>Cost</th><th></th></tr></thead><tbody>
-      ${c.parts_used.map(p => `<tr><td>${esc(p.part_name)}</td><td class="mono">${p.qty}</td><td class="mono">€${fmt(p.cost)}</td>
+      <table><thead><tr><th>Date</th><th>Part</th><th>Qty</th><th>Cost</th><th></th></tr></thead><tbody>
+      ${c.parts_used.map(p => `<tr><td class="mono small">${p.date}</td><td>${esc(p.part_name)}</td><td class="mono">${p.qty}</td><td class="mono">€${fmt(p.cost)}</td>
       <td><button class="ghost" onclick="delPartUsed(${p.id})">Remove</button></td></tr>`).join('')}
       </tbody></table>`}
       <div class="row" style="margin-top:12px">
         <div class="field"><label>Part</label>
           <select id="pf-part">${(() => {
-            const consumables = parts.filter(p => p.category !== 'tool');
+            const consumables = parts.filter(p => p.category === 'part' && p.stock > 0);
             return consumables.length === 0
               ? '<option value="">No parts in inventory</option>'
               : consumables.map(p => `<option value="${p.id}">${esc(p.name)} (${p.stock} in stock)</option>`).join('');
@@ -304,11 +304,12 @@ function renderCarDetail(c) {
       <h2>Other expenses</h2>
       <p class="small" style="margin-top:-8px">Transport, registration, storage, advertising, etc.</p>
       ${c.expenses.length === 0 ? '<div class="empty">None recorded.</div>' : `
-      <table><thead><tr><th>Description</th><th>Cost</th><th></th></tr></thead><tbody>
-      ${c.expenses.map(e => `<tr><td>${esc(e.description)}</td><td class="mono">€${fmt(e.cost)}</td>
+      <table><thead><tr><th>Date</th><th>Description</th><th>Cost</th><th></th></tr></thead><tbody>
+      ${c.expenses.map(e => `<tr><td class="mono small">${e.date}</td><td>${esc(e.description)}</td><td class="mono">€${fmt(e.cost)}</td>
       <td><button class="ghost" onclick="delExpense(${e.id})">Remove</button></td></tr>`).join('')}
       </tbody></table>`}
       <div class="row" style="margin-top:12px">
+        <div class="field"><label>Date</label><input id="ef-date" type="date" value="${today()}"></div>
         <div class="field"><label>Description</label><input id="ef-desc" placeholder="e.g. Transport"></div>
         <div class="field"><label>Cost (€)</label><input id="ef-cost" type="number" min="0" step="0.01" placeholder="0" required></div>
         <button class="btn" onclick="addExpense(${c.id})">Add expense</button>
@@ -366,7 +367,7 @@ async function addExpense(id) {
   if (cost === null) return;
   await api(`/cars/${id}/expenses`, {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
-      description: desc, cost
+      date: document.getElementById('ef-date').value || today(), description: desc, cost
     })
   });
   await reopenCar();
@@ -382,7 +383,7 @@ async function usePart(id) {
   const qty = Number(document.getElementById('pf-qty').value) || 1;
   if (!partId) { alert('Pick a part.'); return; }
   await api(`/cars/${id}/use-part`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ part_id: partId, qty })
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ part_id: partId, qty, date: today() })
   });
   await reopenCar();
 }
