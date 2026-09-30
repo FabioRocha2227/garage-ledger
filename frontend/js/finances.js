@@ -5,7 +5,7 @@
 // -----------------------------------------------------------------------
 
 let financeChartMonths = 6;   // 3 | 6 | 12
-let financeTxFilter = 'all';  // all | income | expense
+let financeTxFilter = 'all';  // all | income | expense | cars | jobs | parts
 let showAddTxMenu = false;
 let financeOverview = 'monthly'; // monthly | all-time
 
@@ -60,7 +60,11 @@ function renderFinances() {
   const expenseCats = buildExpenseCategories(entries);
 
   const filteredEntries = financeTxFilter === 'all' ? entries
-    : entries.filter(e => financeTxFilter === 'income' ? e.amount > 0 : e.amount < 0);
+    : entries.filter(e => {
+      if (financeTxFilter === 'income') return e.amount > 0;
+      if (financeTxFilter === 'expense') return e.amount < 0;
+      return transactionGroup(e) === financeTxFilter;
+    });
 
   return `
     <div class="dash-head">
@@ -167,6 +171,9 @@ function renderFinances() {
           <button class="tab ${financeTxFilter === 'all' ? 'active' : ''}" onclick="setFinanceTxFilter('all')">All</button>
           <button class="tab ${financeTxFilter === 'income' ? 'active' : ''}" onclick="setFinanceTxFilter('income')">Income</button>
           <button class="tab ${financeTxFilter === 'expense' ? 'active' : ''}" onclick="setFinanceTxFilter('expense')">Expenses</button>
+          <button class="tab ${financeTxFilter === 'cars' ? 'active' : ''}" onclick="setFinanceTxFilter('cars')">Cars</button>
+          <button class="tab ${financeTxFilter === 'jobs' ? 'active' : ''}" onclick="setFinanceTxFilter('jobs')">Jobs</button>
+          <button class="tab ${financeTxFilter === 'parts' ? 'active' : ''}" onclick="setFinanceTxFilter('parts')">Parts</button>
         </div>
       </div>
       ${filteredEntries.length === 0 ? '<div class="empty">No transactions match this filter.</div>' : `
@@ -194,6 +201,12 @@ function renderFinances() {
       <div id="fin-backups"><div class="empty">Loading backups…</div></div>
     </div>
   `;
+}
+
+function transactionGroup(entry) {
+  if (entry.type.startsWith('Part:')) return 'parts';
+  if (entry.type.startsWith('Labor:') || entry.type.startsWith('Job:')) return 'jobs';
+  return 'cars';
 }
 
 function loadBackupsList() {
