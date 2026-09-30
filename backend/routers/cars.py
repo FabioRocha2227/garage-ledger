@@ -38,6 +38,12 @@ def get_car(car_id: int, session: Session = Depends(get_session)):
 @router.delete("/api/cars/{car_id}")
 def delete_car(car_id: int, session: Session = Depends(get_session)):
     car = get_car_or_404(session, car_id)
+    for usage in car.parts_used:
+        if usage.part_id:
+            part = session.get(Part, usage.part_id)
+            if part:
+                part.stock += usage.qty
+                session.add(part)
     for ph in car.photos:
         p = os.path.join(UPLOADS_DIR, ph.filename)
         if os.path.exists(p):

@@ -103,6 +103,22 @@ def test_part_stock_rules_and_car_part_usage(client):
     assert tool_use.status_code == 400
 
 
+def test_deleting_car_restores_consumed_part_stock(client):
+    car = create_car(client)
+    part = create_part(client, stock=3)
+
+    usage = client.post(
+        f"/api/cars/{car['id']}/use-part",
+        json={"part_id": part["id"], "qty": 2},
+    )
+    assert usage.status_code == 200, usage.text
+    assert client.get(f"/api/parts/{part['id']}").json()["stock"] == 1
+
+    response = client.delete(f"/api/cars/{car['id']}")
+    assert response.status_code == 200, response.text
+    assert client.get(f"/api/parts/{part['id']}").json()["stock"] == 3
+
+
 def test_repairs_expenses_and_finance_ordering(client):
     car = create_car(client, purchase_date="2026-09-01")
     part = create_part(client, stock=2)
@@ -208,3 +224,53 @@ def test_invalid_photo_extension_is_rejected(client):
         files={"file": ("malware.exe", b"not an image", "application/octet-stream")},
     )
     assert response.status_code == 400
+
+
+def test_request_validation_rejects_invalid_values(client):
+    invalid_car = client.post(
+        "/api/cars",
+        json={"name": "Civic", "purchase_date": "2026-09-01", "purchase_price": -1},
+    )
+    assert invalid_car.status_code == 422
+
+    invalid_part = client.post(
+        "/api/parts",
+        json={"name": "Brake pads", "stock": -1, "unit_cost": 20},
+    )
+    assert invalid_part.status_code == 422
+
+    invalid_category = client.post(
+        "/api/parts",
+        json={"name": "Brake pads", "category": "vehicle"},
+    )
+    assert invalid_category.status_code == 422
+
+    car = create_car(client)
+    invalid_repair = client.post(
+        f"/api/cars/{car['id']}/repairs",
+        json={"date": "2026-09-20", "description": "Brakes", "cost": -1},
+    )
+    assert invalid_repair.status_code == 422
+
+    invalid_sale = client.post(
+        f"/api/cars/{car['id']}/sale",
+        json={"sale_date": "2026-09-25", "sale_price": -1},
+    )
+    assert invalid_sale.status_code == 422
+
+    invalid_usage = client.post(
+        f"/api/cars/{car['id']}/use-part",
+        json={"part_id": 1, "qty": 0},
+    )
+    assert invalid_usage.status_code == 422
+
+    invalid_service = client.post(
+        "/api/services",
+        json={
+            "date": "2026-09-22",
+            "description": "Oil change",
+            "price": 120,
+            "labor_cost": -1,
+        },
+    )
+    assert invalid_service.status_code == 422
