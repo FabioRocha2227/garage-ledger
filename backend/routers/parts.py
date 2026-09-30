@@ -19,6 +19,10 @@ def list_parts(session: Session = Depends(get_session)):
     parts = session.exec(select(Part)).all()
     return [part_out(p) for p in parts]
 
+@router.get("/api/parts/{part_id}")
+def get_part(part_id: int, session: Session = Depends(get_session)):
+    return part_out(get_part_or_404(session, part_id))
+
 @router.post("/api/parts")
 def create_part(data: PartIn, session: Session = Depends(get_session)):
     """Create a new part in the inventory."""

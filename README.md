@@ -31,4 +31,4 @@ python -m uvicorn backend.main:app --reload
 
 Then open **http://127.0.0.1:8000/app/** in a browser.
 
-![alt text](image.png)
+![alt text](assets/image.png)

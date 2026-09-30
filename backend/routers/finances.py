@@ -77,7 +77,7 @@ def _all_transactions(session: Session):
             entries.append({"date": str(s.date), "timestamp": _stamp(s.date, p.created_at), "car": label, "type": f"Part: {p.part_name}", "amount": -p.cost})
         entries.append({"date": str(s.date), "timestamp": _stamp(s.date, s.created_at), "car": label, "type": f"Job: {s.description}", "amount": s.price})
 
-    entries.sort(key=lambda e: e["timestamp"], reverse=True)
+    entries.sort(key=lambda e: (e["date"], e["timestamp"]), reverse=True)
     return entries
 
 @router.get("/api/finances")
