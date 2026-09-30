@@ -6,6 +6,13 @@ __pycache__/
 # C extensions
 *.so
 
+# Garage Ledger local runtime data
+backend/garage.db
+backend/garage.db-*
+backend/uploads/
+backend/backups/
+backend/.setup_done
+
 # Distribution / packaging
 .Python
 build/
@@ -179,3 +186,4 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
