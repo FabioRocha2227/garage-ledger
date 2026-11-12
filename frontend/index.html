@@ -11,10 +11,14 @@
 <body>
 <div class="app">
   <div class="side">
-    <p class="brand">Garage<span>Ledger</span></p>
+    <div class="side-header">
+      <p class="brand">Garage<span>Ledger</span></p>
+      <button class="sidebar-toggle" onclick="toggleSidebar()" title="Collapse sidebar" aria-label="Collapse sidebar" aria-expanded="true">‹</button>
+    </div>
     <p class="tagline">buy · fix · sell</p>
     <nav id="nav"></nav>
   </div>
+  <button class="sidebar-backdrop" onclick="closeMobileSidebar()" aria-label="Close navigation"></button>
   <main id="main">Loading…</main>
 </div>
 

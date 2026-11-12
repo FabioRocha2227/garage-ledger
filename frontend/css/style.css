@@ -9,16 +9,37 @@ body{background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMac
 
 /* layout */
 .app{display:flex; min-height:100%}
-.side{width:200px; flex:0 0 200px; background:var(--panel); border-right:1px solid var(--line); padding:20px 14px; position:sticky; top:0; height:100vh}
+.side{width:250px; flex:0 0 250px; background:var(--panel); border-right:1px solid var(--line); padding:24px 16px; position:sticky; top:0; height:100vh; transition:width .22s ease, flex-basis .22s ease, padding .22s ease; z-index:30}
 main{flex:1; width:100%; max-width:1500px; margin:0 auto; padding:28px 48px; overflow-x:auto}
 
 /* sidebar / nav */
-.brand{font-size:18px; font-weight:700; margin:0 0 2px 4px}
+.side-header{display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:34px; margin-bottom:4px}
+.brand{font-size:18px; font-weight:700; letter-spacing:-.02em; margin:0 0 2px 4px; white-space:nowrap}
 .brand span{color:var(--accent)}
-.tagline{font-size:12px; color:var(--sub); margin:0 0 24px 4px}
-nav button{display:block; width:100%; text-align:left; background:none; border:none; color:var(--sub); font-size:14px; padding:9px 10px; border-radius:6px; cursor:pointer; margin-bottom:2px}
-nav button:hover{background:var(--panel2); color:var(--text)}
-nav button.active{background:var(--accent); color:#fff}
+.brand-mark{display:none}
+.sidebar-toggle{display:flex; align-items:center; justify-content:center; width:30px; height:30px; flex:0 0 30px; border:1px solid var(--line); border-radius:7px; background:var(--panel2); color:var(--sub); cursor:pointer; font-size:22px; line-height:1; transition:background .15s ease, color .15s ease, border-color .15s ease, transform .22s ease}
+.sidebar-toggle:hover{background:var(--accent); color:#fff; border-color:var(--accent)}
+.sidebar-toggle:focus-visible,nav button:focus-visible{outline:2px solid var(--accent2); outline-offset:2px}
+.tagline{font-size:12px; color:var(--sub); margin:0 0 30px 4px}
+nav{display:flex; flex-direction:column; gap:4px}
+nav button{display:flex; align-items:center; gap:12px; position:relative; width:100%; text-align:left; background:none; border:1px solid transparent; color:var(--sub);padding:11px 12px; font-size:14px; border-radius:8px; cursor:pointer; transition:background .15s ease, color .15s ease, border-color .15s ease}
+nav button:hover{background:var(--panel2); color:var(--text); border-color:var(--line)}
+nav button.active{background:rgba(224,97,30,.14); color:var(--accent2); border-color:rgba(224,97,30,.28)}
+.nav-icon{display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; flex:0 0 20px; line-height:1}
+.nav-icon svg{width:19px; height:19px; fill:none; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.7}
+
+.sidebar-collapsed .side{width:72px; flex-basis:72px; padding-left:12px; padding-right:12px}
+.sidebar-collapsed .side-header{justify-content:center}
+.sidebar-collapsed .brand{display:none}
+.sidebar-collapsed .tagline{display:none}
+.sidebar-collapsed .sidebar-toggle{font-size:21px}
+.sidebar-collapsed nav button{justify-content:center; min-height:47px}
+.sidebar-collapsed nav button .nav-label{display:none}
+.sidebar-collapsed nav button .nav-icon{width:20px; height:20px}
+.sidebar-collapsed nav button.active{background:rgba(224,97,30,.16); border-color:rgba(224,97,30,.3)}
+.sidebar-collapsed nav button::after{content:attr(data-tooltip); position:absolute; left:calc(100% + 12px); top:50%; z-index:100; padding:7px 10px; border:1px solid var(--line); border-radius:6px; background:#15171a; color:var(--text); box-shadow:0 6px 16px rgba(0,0,0,.28); font-size:12px; line-height:1.2; white-space:nowrap; pointer-events:none; opacity:0; transform:translateY(-50%) translateX(-4px); transition:opacity .16s ease .08s, transform .16s ease .08s}
+.sidebar-collapsed nav button:hover::after,.sidebar-collapsed nav button:focus-visible::after{opacity:1; transform:translateY(-50%) translateX(0)}
+.sidebar-backdrop{display:none}
 
 /* headings */
 h1{font-size:22px; margin:0 0 4px}
@@ -124,6 +145,17 @@ button.ghost:hover{border-color:var(--accent); color:var(--text)}
 .dot-expense{background:var(--bad)}
 .dot-profit{background:var(--good)}
 .dot-withdrawal{background:#b48be0}
+.transaction-amount{display:inline-block; min-width:62px}
+.withdrawal-delete{
+  display:inline-flex; align-items:center; gap:4px; margin-left:8px;
+  padding:4px 7px; border:1px solid transparent; border-radius:5px;
+  background:transparent; color:var(--sub); cursor:pointer;
+  font-family:inherit; font-size:11px; line-height:1; vertical-align:middle;
+  transition:color .15s ease, border-color .15s ease, background .15s ease;
+}
+.withdrawal-delete span:first-child{font-family:Arial,sans-serif; font-size:16px; line-height:10px}
+.withdrawal-delete:hover{border-color:#6b3936; background:#3a2525; color:var(--bad)}
+.withdrawal-delete:focus-visible{outline:1px solid var(--accent2); outline-offset:2px}
 
 @media(max-width:720px){
   .finance-overview-head{align-items:flex-start; flex-direction:column; gap:10px}
@@ -132,6 +164,8 @@ button.ghost:hover{border-color:var(--accent); color:var(--text)}
   .finance-kpi-grid{grid-template-columns:repeat(2,1fr)}
   .finance-kpi:nth-child(2){border-right:none}
   .finance-kpi:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .withdrawal-delete span:last-child{display:none}
+  .withdrawal-delete{padding:4px 6px}
 }
 
 @media(max-width:720px){
@@ -152,11 +186,19 @@ button.ghost:hover{border-color:var(--accent); color:var(--text)}
 /* mobile */
 @media(max-width:720px){
   .app{flex-direction:column}
-  .side{width:100%; height:auto; position:static; display:flex; align-items:center; gap:8px; padding:12px 14px}
-  .brand,.tagline{display:none}
-  nav{display:flex; gap:4px; overflow-x:auto}
-  nav button{white-space:nowrap; margin-bottom:0}
-  main{padding:18px}
+  .side{width:100%; flex:0 0 auto; height:auto; min-height:58px; position:fixed; top:0; left:0; right:0; padding:12px 16px; border-right:0; border-bottom:1px solid var(--line); z-index:40}
+  .side-header{margin:0}
+  .sidebar-toggle{margin-left:auto}
+  .tagline{display:none}
+  nav{display:none}
+  .mobile-sidebar-open .side{min-height:100vh; align-items:stretch; flex-direction:column; padding:18px 16px}
+  .mobile-sidebar-open nav{display:flex; margin-top:28px}
+  .mobile-sidebar-open nav button{padding:12px}
+  .sidebar-backdrop{display:block; position:fixed; inset:0; z-index:35; border:0; background:rgba(0,0,0,.55); opacity:0; pointer-events:none; transition:opacity .22s ease}
+  .mobile-sidebar-open .sidebar-backdrop{opacity:1; pointer-events:auto}
+  main{padding:82px 18px 18px}
+  .sidebar-collapsed .side{width:100%; flex-basis:auto; padding:12px 16px}
+  .sidebar-collapsed .side-header{width:100%}
 }
 
 /* =======================================================================
@@ -169,6 +211,20 @@ button.ghost:hover{border-color:var(--accent); color:var(--text)}
 .dash-head h1{margin-bottom:6px}
 .dash-head .sub{margin:0}
 .dash-actions{display:flex; gap:10px}
+.export-csv{
+  display:flex; align-items:center; gap:9px; min-width:142px;
+  padding:7px 12px; border:1px solid var(--line); border-radius:7px;
+  background:var(--panel); color:var(--text); text-decoration:none;
+  transition:border-color .15s ease, background .15s ease, transform .15s ease;
+}
+.export-csv:hover{border-color:var(--accent); background:var(--panel2); transform:translateY(-1px)}
+.export-csv-icon{
+  display:flex; align-items:center; justify-content:center;
+  width:27px; height:27px; border-radius:6px;
+  background:#4a2c18; color:var(--accent2); font-size:20px; line-height:1;
+}
+.export-csv strong{display:block; font-size:13px; line-height:1.15}
+.export-csv small{display:block; color:var(--sub); font-size:10px; margin-top:2px}
 
 .dash-stats{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
 
@@ -305,6 +361,8 @@ button.ghost:hover{border-color:var(--accent); color:var(--text)}
 .pagination{display:flex; justify-content:space-between; align-items:center; margin-top:4px; padding:6px 2px}
 
 @media(max-width:720px){
+  .dash-actions{width:100%}
+  .dash-actions .export-csv, .dash-actions .btn{flex:1; justify-content:center}
   .dash-head{flex-direction:column; align-items:flex-start}
   .inv-summary{gap:20px}
   .inv-summary .label, .inv-summary .num{text-align:left}

@@ -85,7 +85,10 @@ function renderFinances() {
         <p class="sub">Every euro in and out of the business — cars and service jobs combined.</p>
       </div>
       <div class="dash-actions">
-        <a class="ghost" style="text-decoration:none; display:inline-block" href="${API}/export/csv">⬇ Export CSV</a>
+        <a class="export-csv" href="${API}/export/csv" download="garage-ledger-transactions.csv">
+          <span class="export-csv-icon" aria-hidden="true">↓</span>
+          <span><strong>Export CSV</strong><small>Download ledger</small></span>
+        </a>
         <button class="btn" onclick="toggleAddTxMenu()">${showAddTxMenu ? 'Cancel' : '+ Add transaction'}</button>
       </div>
     </div>
@@ -191,8 +194,9 @@ function renderFinances() {
           <td><span class="cat-badge ${cat.cls}">${esc(cat.label)}</span></td>
           <td>${esc(cat.desc || '—')}</td>
           <td class="small">${esc(e.car)}</td>
-          <td class="mono ${e.amount >= 0 ? 'pos' : 'neg'}">${e.amount >= 0 ? '+' : ''}€${fmt(e.amount)}
-            ${isOwnerWithdrawal(e) ? `<button class="rm" title="Delete withdrawal" onclick="deleteWithdrawal(${e.withdrawal_id})">×</button>` : ''}
+          <td class="mono ${e.amount >= 0 ? 'pos' : 'neg'}">
+            <span class="transaction-amount">${e.amount >= 0 ? '+' : ''}€${fmt(e.amount)}</span>
+            ${isOwnerWithdrawal(e) ? `<button class="withdrawal-delete" title="Remove owner withdrawal" aria-label="Remove owner withdrawal" onclick="deleteWithdrawal(${e.withdrawal_id})"><span aria-hidden="true">×</span><span>Remove</span></button>` : ''}
           </td>
         </tr>`;
       }).join('')}
