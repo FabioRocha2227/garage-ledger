@@ -101,7 +101,7 @@ The backend exposes these route groups:
 | Parts inventory | `/api/parts` |
 | Service jobs | `/api/services` |
 | Photos | `/api/cars/{id}/photos`, `/api/parts/{id}/photos`, `/api/photos/{id}` |
-| Finance | `/api/dashboard`, `/api/finances`, `/api/export/csv` |
+| Finance | `/api/dashboard`, `/api/finances`, `/api/withdrawals`, `/api/export/csv` |
 | Backups | `/api/backups` |
 
 ## Project Structure
@@ -139,4 +139,3 @@ garage-ledger/
 ## Security and Scope
 
 Garage Ledger is intended for trusted local use. It does not currently provide user authentication or authorization, and the API enables permissive CORS for the local frontend.
-

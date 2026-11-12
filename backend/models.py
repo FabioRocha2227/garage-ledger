@@ -83,6 +83,14 @@ class ServicePartUsage(SQLModel, table=True):
     cost: float = 0
     service: ServiceJob = Relationship(back_populates="parts_used")
 
+class OwnerWithdrawal(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    date: date
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    amount: float = 0
+    description: Optional[str] = None
+
+
 class Photo(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     filename: str
@@ -90,7 +98,6 @@ class Photo(SQLModel, table=True):
     part_id: Optional[int] = Field(default=None, foreign_key="part.id")
     car: Optional[Car] = Relationship(back_populates="photos")
     part: Optional[Part] = Relationship(back_populates="photos")
-
 
 
 

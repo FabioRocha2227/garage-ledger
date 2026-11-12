@@ -3,13 +3,14 @@ ledger, and its CSV export."""
 
 import csv
 import io
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlmodel import Session, select
 from datetime import datetime
 
 from backend.database import get_session
-from backend.models import Car, ServiceJob
+from backend.models import Car, ServiceJob, OwnerWithdrawal
+from backend.schemas import OwnerWithdrawalIn
 from backend.helper import car_cost, car_out, service_cost, service_out
 
 router = APIRouter(tags=["finances"])
@@ -77,6 +78,18 @@ def _all_transactions(session: Session):
             entries.append({"date": str(s.date), "timestamp": _stamp(s.date, p.created_at), "car": label, "type": f"Part: {p.part_name}", "amount": -p.cost})
         entries.append({"date": str(s.date), "timestamp": _stamp(s.date, s.created_at), "car": label, "type": f"Job: {s.description}", "amount": s.price})
 
+    withdrawals = session.exec(select(OwnerWithdrawal)).all()
+    for w in withdrawals:
+        entries.append({
+            "date": str(w.date),
+            "timestamp": _stamp(w.date, w.created_at),
+            "car": "Owner withdrawal",
+            "type": "Owner withdrawal",
+            "amount": -w.amount,
+            "description": w.description,
+            "withdrawal_id": w.id,
+        })
+
     entries.sort(key=lambda e: (e["date"], e["timestamp"]), reverse=True)
     return entries
 
@@ -84,13 +97,33 @@ def _all_transactions(session: Session):
 def finances(session:Session = Depends(get_session)):
     """Return a full ledger of all transactions."""
     entries = _all_transactions(session)
-    total_in = sum(e["amount"] for e in entries if e["amount"] > 0)
-    total_out = sum(e["amount"] for e in entries if e["amount"] < 0)
+    operating_entries = [e for e in entries if e["type"] != "Owner withdrawal"]
+    total_in = sum(e["amount"] for e in operating_entries if e["amount"] > 0)
+    total_out = sum(e["amount"] for e in operating_entries if e["amount"] < 0)
+    total_withdrawals = sum(abs(e["amount"]) for e in entries if e["type"] == "Owner withdrawal")
     return {
         "entries": entries,
         "total_in": total_in,
         "total_out": total_out,
+        "total_withdrawals": total_withdrawals,
     }
+
+@router.post("/api/withdrawals")
+def create_withdrawal(data: OwnerWithdrawalIn, session: Session = Depends(get_session)):
+    withdrawal = OwnerWithdrawal(**data.dict())
+    session.add(withdrawal)
+    session.commit()
+    session.refresh(withdrawal)
+    return withdrawal
+
+@router.delete("/api/withdrawals/{withdrawal_id}")
+def delete_withdrawal(withdrawal_id: int, session: Session = Depends(get_session)):
+    withdrawal = session.get(OwnerWithdrawal, withdrawal_id)
+    if not withdrawal:
+        raise HTTPException(status_code=404, detail="Owner withdrawal not found")
+    session.delete(withdrawal)
+    session.commit()
+    return {"ok": True}
 
 @router.get("/api/export/csv")
 def export_csv(session: Session = Depends(get_session)):

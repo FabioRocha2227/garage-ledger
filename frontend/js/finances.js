@@ -5,9 +5,14 @@
 // -----------------------------------------------------------------------
 
 let financeChartMonths = 6;   // 3 | 6 | 12
-let financeTxFilter = 'all';  // all | income | expense | cars | jobs | parts
+let financeTxFilter = 'all';  // all | income | expense | cars | jobs | parts | withdrawals
 let showAddTxMenu = false;
+let showWithdrawalForm = false;
 let financeOverview = 'monthly'; // monthly | all-time
+
+function isOwnerWithdrawal(entry) {
+  return entry.type === 'Owner withdrawal';
+}
 
 function isSameMonth(dateStr, ref) {
   const d = new Date(dateStr + 'T00:00:00');
@@ -25,6 +30,7 @@ function txCategory(entry) {
   if (t.startsWith('Expense:')) return { label: 'Other Expense', cls: 'cat-expense', desc: t.slice(9) };
   if (t.startsWith('Labor:')) return { label: 'Service Labor', cls: 'cat-labor', desc: t.slice(7) };
   if (t.startsWith('Job:')) return { label: 'Service Job', cls: 'cat-job', desc: t.slice(5) };
+  if (isOwnerWithdrawal(entry)) return { label: 'Owner Withdrawal', cls: 'cat-expense', desc: entry.description || entry.car };
   return { label: t, cls: 'cat-other', desc: entry.car };
 }
 
@@ -39,14 +45,20 @@ function renderFinances() {
   const thisMonth = entries.filter(e => isSameMonth(e.date, now));
   const lastMonth = entries.filter(e => isSameMonth(e.date, lastMonthRef));
   const sumIn = list => list.filter(e => e.amount > 0).reduce((s, e) => s + e.amount, 0);
-  const sumOut = list => list.filter(e => e.amount < 0).reduce((s, e) => s + Math.abs(e.amount), 0);
+  const sumOut = list => list.filter(e => e.amount < 0 && !isOwnerWithdrawal(e)).reduce((s, e) => s + Math.abs(e.amount), 0);
 
   const mtdIncome = sumIn(thisMonth);
   const mtdExpense = sumOut(thisMonth);
+  const mtdWithdrawals = thisMonth
+    .filter(isOwnerWithdrawal)
+    .reduce((s, e) => s + Math.abs(e.amount), 0);
   const mtdNet = mtdIncome - mtdExpense;
   const totalIncome = Number(financeData.total_in) || 0;
   const totalExpense = Math.abs(Number(financeData.total_out) || 0);
+  const totalWithdrawals = Number(financeData.total_withdrawals) || 0;
   const totalNet = totalIncome - totalExpense;
+  const mtdAvailableCash = mtdNet - mtdWithdrawals;
+  const availableCash = totalNet - totalWithdrawals;
   const lastNet = sumIn(lastMonth) - sumOut(lastMonth);
   let deltaLabel = '—';
   if (lastMonth.length > 0 && lastNet !== 0) {
@@ -86,58 +98,52 @@ function renderFinances() {
         <button class="ghost" onclick="setView('cars')">🚗 Repair, expense or sale on a car</button>
         <button class="ghost" onclick="setView('services')">🔧 Service job for a customer</button>
         <button class="ghost" onclick="setView('parts')">📦 Parts or tools purchase</button>
+        <button class="ghost" onclick="toggleWithdrawalForm()">💶 Owner withdrawal</button>
       </div>
     </div>` : ''}
 
-    <div class="panel">
-      <div class="panel-head">
-        <h2>Performance overview</h2>
+    ${showWithdrawalForm ? renderWithdrawalForm() : ''}
+
+    <div class="panel finance-overview">
+      <div class="panel-head finance-overview-head">
+        <div>
+          <span class="finance-eyebrow">Business snapshot</span>
+          <h2>Performance overview</h2>
+        </div>
         <div class="filter-tabs">
           <button class="tab ${financeOverview === 'monthly' ? 'active' : ''}" onclick="setFinanceOverview('monthly')">This month</button>
           <button class="tab ${financeOverview === 'all-time' ? 'active' : ''}" onclick="setFinanceOverview('all-time')">All time</button>
         </div>
       </div>
-      <div class="grid dash-stats" style="margin-bottom:0">
-        ${financeOverview === 'monthly' ? `
-        <div class="stat stat-border border-good">
-          <div class="label">Net profit (this month)</div>
-          <div class="num ${mtdNet >= 0 ? 'pos' : 'neg'}">€${fmt(mtdNet)}</div>
-          <div class="stat-sub ${deltaLabel.startsWith('↓') ? 'neg' : ''}">${deltaLabel}</div>
+      <div class="finance-cash-hero">
+        <div>
+          <div class="finance-metric-label">Available cash</div>
+          <div class="finance-cash-value ${(financeOverview === 'monthly' ? mtdAvailableCash : availableCash) >= 0 ? 'pos' : 'neg'}">€${fmt(financeOverview === 'monthly' ? mtdAvailableCash : availableCash)}</div>
+          <div class="finance-cash-note">Income minus operating expenses and owner withdrawals</div>
         </div>
-        <div class="stat stat-border border-accent">
-          <div class="label">Revenue (this month)</div>
-          <div class="num">€${fmt(mtdIncome)}</div>
-          <div class="stat-sub">Sales + service jobs</div>
+        <div class="finance-cash-period">${financeOverview === 'monthly' ? 'This month' : 'All time'}<span>Cash position</span></div>
+      </div>
+      <div class="finance-kpi-grid">
+        <div class="finance-kpi">
+          <div class="finance-kpi-heading"><span class="finance-kpi-dot dot-income"></span>Revenue</div>
+          <strong>€${fmt(financeOverview === 'monthly' ? mtdIncome : totalIncome)}</strong>
+          <span>${financeOverview === 'monthly' ? 'Sales + service jobs' : 'All recorded income'}</span>
         </div>
-        <div class="stat stat-border border-bad">
-          <div class="label">Expenses (this month)</div>
-          <div class="num">€${fmt(mtdExpense)}</div>
-          <div class="stat-sub">Purchases, repairs, parts</div>
+        <div class="finance-kpi">
+          <div class="finance-kpi-heading"><span class="finance-kpi-dot dot-expense"></span>Operating expenses</div>
+          <strong>€${fmt(financeOverview === 'monthly' ? mtdExpense : totalExpense)}</strong>
+          <span>Purchases, repairs and parts</span>
         </div>
-        <div class="stat stat-border border-blue">
-          <div class="label">Profit margin</div>
-          <div class="num">${margin === null ? '—' : margin + '%'}</div>
-          <div class="stat-sub">Net ÷ revenue, this month</div>
-        </div>` : `
-        <div class="stat stat-border border-good">
-          <div class="label">Total net profit</div>
-          <div class="num ${totalNet >= 0 ? 'pos' : 'neg'}">€${fmt(totalNet)}</div>
+        <div class="finance-kpi">
+          <div class="finance-kpi-heading"><span class="finance-kpi-dot dot-profit"></span>Net profit</div>
+          <strong class="${(financeOverview === 'monthly' ? mtdNet : totalNet) >= 0 ? 'pos' : 'neg'}">€${fmt(financeOverview === 'monthly' ? mtdNet : totalNet)}</strong>
+          <span>${financeOverview === 'monthly' ? (deltaLabel === '—' ? 'No previous month data' : deltaLabel) : `${marginAllTime === null ? '—' : marginAllTime + '%'} profit margin`}</span>
         </div>
-        <div class="stat stat-border border-accent">
-          <div class="label">Total revenue</div>
-          <div class="num">€${fmt(totalIncome)}</div>
-          <div class="stat-sub">Sales + service jobs</div>
+        <div class="finance-kpi">
+          <div class="finance-kpi-heading"><span class="finance-kpi-dot dot-withdrawal"></span>Owner withdrawals</div>
+          <strong>€${fmt(financeOverview === 'monthly' ? mtdWithdrawals : totalWithdrawals)}</strong>
+          <span>Not included in profit</span>
         </div>
-        <div class="stat stat-border border-bad">
-          <div class="label">Total expenses</div>
-          <div class="num">€${fmt(totalExpense)}</div>
-          <div class="stat-sub">Purchases, repairs, parts</div>
-        </div>
-        <div class="stat stat-border border-blue">
-          <div class="label">Profit margin</div>
-          <div class="num">${marginAllTime === null ? '—' : marginAllTime + '%'}</div>
-          <div class="stat-sub">Net ÷ revenue, all time</div>
-        </div>`}
       </div>
     </div>
 
@@ -185,7 +191,9 @@ function renderFinances() {
           <td><span class="cat-badge ${cat.cls}">${esc(cat.label)}</span></td>
           <td>${esc(cat.desc || '—')}</td>
           <td class="small">${esc(e.car)}</td>
-          <td class="mono ${e.amount >= 0 ? 'pos' : 'neg'}">${e.amount >= 0 ? '+' : ''}€${fmt(e.amount)}</td>
+          <td class="mono ${e.amount >= 0 ? 'pos' : 'neg'}">${e.amount >= 0 ? '+' : ''}€${fmt(e.amount)}
+            ${isOwnerWithdrawal(e) ? `<button class="rm" title="Delete withdrawal" onclick="deleteWithdrawal(${e.withdrawal_id})">×</button>` : ''}
+          </td>
         </tr>`;
       }).join('')}
       </tbody></table>
@@ -210,6 +218,7 @@ function transactionDateTime(entry) {
 }
 
 function transactionGroup(entry) {
+  if (isOwnerWithdrawal(entry)) return 'withdrawals';
   if (entry.type.startsWith('Part:')) return 'parts';
   if (entry.type.startsWith('Labor:') || entry.type.startsWith('Job:')) return 'jobs';
   return 'cars';
@@ -249,6 +258,50 @@ function setFinanceChartMonths(v) { financeChartMonths = Number(v); refreshFinan
 function setFinanceTxFilter(f) { financeTxFilter = f; refreshFinancesView(); }
 function setFinanceOverview(mode) { financeOverview = mode; refreshFinancesView(); }
 function toggleAddTxMenu() { showAddTxMenu = !showAddTxMenu; refreshFinancesView(); }
+function toggleWithdrawalForm() { showWithdrawalForm = !showWithdrawalForm; refreshFinancesView(); }
+
+function renderWithdrawalForm() {
+  return `
+    <div class="panel">
+      <h2>Log owner withdrawal</h2>
+      <p class="small">This reduces available cash but does not count as a business expense or reduce profit.</p>
+      <div class="row">
+        <div class="field"><label>Date</label><input id="ow-date" type="date" value="${today()}"></div>
+        <div class="field"><label>Amount (€)</label><input id="ow-amount" type="number" min="0.01" step="0.01" placeholder="0.00"></div>
+        <div class="field" style="flex:1; min-width:220px"><label>Description (optional)</label><input id="ow-description" placeholder="e.g. Personal withdrawal"></div>
+      </div>
+      <button class="btn" onclick="addWithdrawal()">Add withdrawal</button>
+    </div>
+  `;
+}
+
+async function addWithdrawal() {
+  const amount = Number(document.getElementById('ow-amount').value);
+  if (!Number.isFinite(amount) || amount <= 0) {
+    alert('Enter a withdrawal amount greater than zero.');
+    return;
+  }
+  await api('/withdrawals', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      date: document.getElementById('ow-date').value,
+      amount,
+      description: document.getElementById('ow-description').value.trim() || null,
+    }),
+  });
+  showWithdrawalForm = false;
+  showAddTxMenu = false;
+  financeData = await api('/finances');
+  document.getElementById('main').innerHTML = renderFinances();
+}
+
+async function deleteWithdrawal(id) {
+  if (!confirm('Delete this owner withdrawal?')) return;
+  await api(`/withdrawals/${id}`, { method: 'DELETE' });
+  financeData = await api('/finances');
+  document.getElementById('main').innerHTML = renderFinances();
+}
 
 // ---- cash flow chart: two real lines (income, expenses) by month ----
 
@@ -303,6 +356,7 @@ function buildExpenseCategories(entries) {
   };
   entries.forEach(e => {
     if (e.amount >= 0) return;
+    if (isOwnerWithdrawal(e)) return;
     const t = e.type, v = Math.abs(e.amount);
     if (t === 'Purchase') buckets.purchase.value += v;
     else if (t.startsWith('Part:')) buckets.part.value += v;

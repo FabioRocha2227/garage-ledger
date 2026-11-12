@@ -99,4 +99,9 @@ class ServiceJobIn(BaseModel):
     _price_must_be_valid = field_validator("price", mode="before")(_require_non_negative_number)
     _labor_cost_must_be_valid = field_validator("labor_cost", mode="before")(_require_non_negative_number)
 
+class OwnerWithdrawalIn(BaseModel):
+    date: date_type
+    amount: float = Field(gt=0)
+    description: Optional[str] = None
 
+    _amount_must_be_positive = field_validator("amount", mode="before")(_require_number)

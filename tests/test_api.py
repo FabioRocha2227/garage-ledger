@@ -175,6 +175,25 @@ def test_service_job_uses_inventory_and_enters_finances(client):
     assert any(entry["type"] == "Labor: Oil change" and entry["amount"] == -40 for entry in entries)
     assert any(entry["type"] == "Part: Oil filter" and entry["amount"] == -15 for entry in entries)
 
+def test_owner_withdrawal_enters_cash_ledger_without_reducing_profit(client):
+    response = client.post(
+        "/api/withdrawals",
+        json={"date": "2026-09-27", "amount": 300, "description": "Personal withdrawal"},
+    )
+    assert response.status_code == 200, response.text
+    withdrawal = response.json()
+    assert withdrawal["amount"] == 300
+
+    finances = client.get("/api/finances").json()
+    entry = next(e for e in finances["entries"] if e["type"] == "Owner withdrawal")
+    assert entry["amount"] == -300
+    assert finances["total_withdrawals"] == 300
+    assert finances["total_in"] == 0
+    assert finances["total_out"] == 0
+
+    assert client.delete(f"/api/withdrawals/{withdrawal['id']}").status_code == 200
+    assert not any(e["type"] == "Owner withdrawal" for e in client.get("/api/finances").json()["entries"])
+
 
 def test_photo_upload_and_delete_removes_file(client, tmp_path):
     car = create_car(client)
