@@ -1,3 +1,5 @@
+@import url("pages/cars.css");
+
 :root{
   --bg:#1b1d21; --panel:#232529; --panel2:#2a2d32; --line:#3a3d43;
   --text:#e9e8e4; --sub:#9a9da4; --accent:#e0611e; --accent2:#f0863f;
@@ -286,45 +288,15 @@ button.ghost:hover{border-color:var(--accent); color:var(--text)}
 .ledger-sub{font-size:11px; color:var(--sub)}
 .dash-fullwidth{width:100%; text-align:center; margin-top:12px}
 
-/* =======================================================================
-   Cars list (inventory-style toolbar, table/grid views, pagination)
-   ======================================================================= */
-
-.inv-summary{display:flex; gap:28px}
-.inv-summary .label{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--sub); margin-bottom:4px; text-align:right}
-.inv-summary .num{font-family:var(--mono); font-size:18px; font-weight:600; text-align:right}
-
-.toolbar{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:18px}
-.search-input{flex:1 1 220px; min-width:180px}
 .filter-tabs{display:flex; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:3px; gap:2px}
 .filter-tabs .tab{background:none; border:none; color:var(--sub); font-size:13px; padding:6px 12px; border-radius:6px; cursor:pointer}
 .filter-tabs .tab:hover{color:var(--text)}
 .filter-tabs .tab.active{background:var(--accent); color:#fff; font-weight:600}
 .sort-select{font-size:13px; padding:8px 10px}
-.view-toggle{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden}
-.view-toggle button{background:var(--panel); border:none; color:var(--sub); width:34px; height:34px; cursor:pointer; font-size:14px}
-.view-toggle button.active{background:var(--accent); color:#fff}
-.view-toggle button:hover:not(.active){color:var(--text)}
 
 .row-actions{gap:8px; align-items:center}
 .icon-btn{background:none; border:1px solid var(--line); border-radius:6px; width:30px; height:30px; cursor:pointer; font-size:13px; line-height:1}
 .icon-btn:hover{border-color:var(--accent)}
-
-/* time-in-stock indicator */
-.time-bar-wrap{min-width:120px}
-.time-bar{width:100%; height:5px; border-radius:3px; background:var(--panel2); margin-top:4px; overflow:hidden}
-.time-bar-fill{height:100%; border-radius:3px}
-.bar-good{background:var(--good)}
-.bar-warn{background:#e0c05f}
-.bar-bad{background:var(--bad)}
-
-/* grid view */
-.cars-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px}
-.car-card{margin-bottom:0}
-.car-card-thumb{width:100%; aspect-ratio:16/9; min-height:140px; border-radius:6px; overflow:hidden; background:var(--panel2); display:flex; align-items:center; justify-content:center}
-.car-card-thumb .veh-thumb-big{width:100%; height:100%; flex:1 1 auto; object-fit:cover; display:block; border:none; border-radius:0}
-.car-card-thumb .veh-thumb-big.wide-photo{transform:scaleX(2.5)}
-.car-card-thumb .veh-thumb-placeholder{font-size:42px; width:100%; height:100%; flex:1 1 auto}
 
 /* parts inventory tables */
 .inventory-section{margin-top:24px}
@@ -359,15 +331,10 @@ button.ghost:hover{border-color:var(--accent); color:var(--text)}
   .inventory-bar-value{grid-column:2; grid-row:1 / span 2}
 }
 
-/* pagination */
-.pagination{display:flex; justify-content:space-between; align-items:center; margin-top:4px; padding:6px 2px}
-
 @media(max-width:720px){
   .dash-actions{width:100%}
   .dash-actions .export-csv, .dash-actions .btn{flex:1; justify-content:center}
   .dash-head{flex-direction:column; align-items:flex-start}
-  .inv-summary{gap:20px}
-  .inv-summary .label, .inv-summary .num{text-align:left}
 }
 
 

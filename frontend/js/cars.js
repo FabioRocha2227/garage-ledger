@@ -42,6 +42,7 @@ function renderCars() {
   const pageItems = filtered.slice(start, start + CARS_PAGE_SIZE);
 
   return `
+    <div class="cars-page">
     <div class="dash-head">
       <div>
         <h1>Cars</h1>
@@ -79,6 +80,7 @@ function renderCars() {
       (carsViewMode === 'table' ? renderCarsTable(pageItems) : renderCarsGrid(pageItems))}
 
     ${totalCount > CARS_PAGE_SIZE ? renderCarsPagination(start, pageItems.length, totalCount, totalPages) : ''}
+    </div>
   `;
 }
 
@@ -249,6 +251,7 @@ async function openCar(id) {
 function renderCarDetail(c) {
   if (!c) return renderCars();
   return `
+    <div class="cars-page">
     <span class="backbtn" onclick="setView('cars')">&larr; Back to cars</span>
     <h1>${esc(c.name)} ${c.plate ? `<span class="small">(${esc(c.plate)})</span>` : ''}</h1>
     <p class="sub">Purchased ${c.purchase_date} for €${fmt(c.purchase_price)} ${statusBadge(c)}</p>
@@ -331,6 +334,7 @@ function renderCarDetail(c) {
       `}
     </div>
     <button class="ghost" onclick="delCar(${c.id})">Delete this car</button>
+    </div>
   `;
 }
 

@@ -1,0 +1,34 @@
+/* Cars page: inventory toolbar, table/grid views, time indicators and pagination. */
+
+.cars-page .inv-summary{display:flex; gap:28px}
+.cars-page .inv-summary .label{font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--sub); margin-bottom:4px; text-align:right}
+.cars-page .inv-summary .num{font-family:var(--mono); font-size:18px; font-weight:600; text-align:right}
+
+.cars-page .toolbar{display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:18px}
+.cars-page .search-input{flex:1 1 220px; min-width:180px}
+.cars-page .view-toggle{display:flex; border:1px solid var(--line); border-radius:8px; overflow:hidden}
+.cars-page .view-toggle button{background:var(--panel); border:none; color:var(--sub); width:34px; height:34px; cursor:pointer; font-size:14px}
+.cars-page .view-toggle button.active{background:var(--accent); color:#fff}
+.cars-page .view-toggle button:hover:not(.active){color:var(--text)}
+
+.cars-page .time-bar-wrap{min-width:120px}
+.cars-page .time-bar{width:100%; height:5px; border-radius:3px; background:var(--panel2); margin-top:4px; overflow:hidden}
+.cars-page .time-bar-fill{height:100%; border-radius:3px}
+.cars-page .bar-good{background:var(--good)}
+.cars-page .bar-warn{background:#e0c05f}
+.cars-page .bar-bad{background:var(--bad)}
+
+.cars-page .cars-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px}
+.cars-page .car-card{margin-bottom:0}
+.cars-page .car-card-thumb{width:100%; aspect-ratio:16/9; min-height:140px; border-radius:6px; overflow:hidden; background:var(--panel2); display:flex; align-items:center; justify-content:center}
+.cars-page .car-card-thumb .veh-thumb-big{width:100%; height:100%; flex:1 1 auto; object-fit:cover; display:block; border:none; border-radius:0}
+.cars-page .car-card-thumb .veh-thumb-big.wide-photo{transform:scaleX(2.5)}
+.cars-page .car-card-thumb .veh-thumb-placeholder{font-size:42px; width:100%; height:100%; flex:1 1 auto}
+
+.cars-page .pagination{display:flex; justify-content:space-between; align-items:center; margin-top:4px; padding:6px 2px}
+
+@media(max-width:720px){
+  .cars-page .inv-summary{gap:20px}
+  .cars-page .inv-summary .label,
+  .cars-page .inv-summary .num{text-align:left}
+}
