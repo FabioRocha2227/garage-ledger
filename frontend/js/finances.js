@@ -79,6 +79,7 @@ function renderFinances() {
     });
 
   return `
+    <div class="finances-page">
     <div class="dash-head">
       <div>
         <h1>Financial Ledger</h1>
@@ -211,6 +212,7 @@ function renderFinances() {
       </div>
       <p class="small" style="margin-top:-8px">A backup is taken automatically once a day. Each one is a full copy of <code>garage.db</code> and <code>uploads/</code>, kept for 14 days.</p>
       <div id="fin-backups"><div class="empty">Loading backups…</div></div>
+    </div>
     </div>
   `;
 }

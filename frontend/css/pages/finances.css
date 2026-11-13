@@ -1,0 +1,105 @@
+/* Finances page: cash overview, ledger details and expense breakdown. */
+
+.finances-page .export-csv{
+  display:flex; align-items:center; gap:9px; min-width:142px;
+  padding:7px 12px; border:1px solid var(--line); border-radius:7px;
+  background:var(--panel); color:var(--text); text-decoration:none;
+  transition:border-color .15s ease, background .15s ease, transform .15s ease;
+}
+.finances-page .export-csv:hover{border-color:var(--accent); background:var(--panel2); transform:translateY(-1px)}
+.finances-page .export-csv-icon{
+  display:flex; align-items:center; justify-content:center;
+  width:27px; height:27px; border-radius:6px;
+  background:#4a2c18; color:var(--accent2); font-size:20px; line-height:1;
+}
+.finances-page .export-csv strong{display:block; font-size:13px; line-height:1.15}
+.finances-page .export-csv small{display:block; color:var(--sub); font-size:10px; margin-top:2px}
+
+.finances-page .finance-transactions{margin-top:20px}
+.finances-page .finance-overview{padding:0; overflow:hidden}
+.finances-page .finance-overview-head{padding:18px 20px 14px; margin:0; border-bottom:1px solid var(--line)}
+.finances-page .finance-eyebrow{display:block; color:var(--accent2); font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:3px}
+.finances-page .finance-overview-head h2{margin:0}
+.finances-page .finance-cash-hero{display:flex; justify-content:space-between; align-items:center; gap:20px; margin:20px; padding:20px 22px; background:linear-gradient(135deg,#2c302f,#25282b); border:1px solid #405249; border-radius:8px}
+.finances-page .finance-metric-label{color:var(--sub); font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase}
+.finances-page .finance-cash-value{font-family:var(--mono); font-size:32px; font-weight:700; line-height:1.2; margin:5px 0}
+.finances-page .finance-cash-note{color:var(--sub); font-size:12px}
+.finances-page .finance-cash-period{color:var(--good); font-size:12px; font-weight:600; text-align:right}
+.finances-page .finance-cash-period span{display:block; color:var(--sub); font-size:11px; font-weight:400; margin-top:3px}
+.finances-page .finance-kpi-grid{display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--line)}
+.finances-page .finance-kpi{padding:16px 20px 18px; border-right:1px solid var(--line); min-width:0}
+.finances-page .finance-kpi:last-child{border-right:none}
+.finances-page .finance-kpi-heading{display:flex; align-items:center; gap:7px; color:var(--sub); font-size:11px; font-weight:600; margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.finances-page .finance-kpi strong{display:block; font-family:var(--mono); font-size:19px; line-height:1.2}
+.finances-page .finance-kpi>span{display:block; color:var(--sub); font-size:11px; margin-top:5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.finances-page .finance-kpi-dot{width:7px; height:7px; border-radius:50%; flex:0 0 7px}
+.finances-page .dot-income{background:var(--accent2)}
+.finances-page .dot-expense{background:var(--bad)}
+.finances-page .dot-profit{background:var(--good)}
+.finances-page .dot-withdrawal{background:#b48be0}
+
+.finances-page .transaction-amount{display:inline-block; min-width:62px}
+.finances-page .withdrawal-delete{
+  display:inline-flex; align-items:center; gap:4px; margin-left:8px;
+  padding:4px 7px; border:1px solid transparent; border-radius:5px;
+  background:transparent; color:var(--sub); cursor:pointer;
+  font-family:inherit; font-size:11px; line-height:1; vertical-align:middle;
+  transition:color .15s ease, border-color .15s ease, background .15s ease;
+}
+.finances-page .withdrawal-delete span:first-child{font-family:Arial,sans-serif; font-size:16px; line-height:10px}
+.finances-page .withdrawal-delete:hover{border-color:#6b3936; background:#3a2525; color:var(--bad)}
+.finances-page .withdrawal-delete:focus-visible{outline:1px solid var(--accent2); outline-offset:2px}
+
+.finances-page .cat-badge{display:inline-block; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.03em; white-space:nowrap}
+.finances-page .cat-sale{background:#1e3a2c; color:var(--good)}
+.finances-page .cat-purchase{background:#4a2c18; color:var(--accent2)}
+.finances-page .cat-repair{background:#4a3520; color:#f0a860}
+.finances-page .cat-part{background:#1c2f42; color:#6fb3e0}
+.finances-page .cat-expense{background:#302447; color:#b48be0}
+.finances-page .cat-labor{background:#1c3a3a; color:#5fd0c0}
+.finances-page .cat-job{background:#302447; color:#b48be0}
+.finances-page .cat-other{background:var(--panel2); color:var(--sub)}
+
+.finances-page .donut-wrap{display:flex; justify-content:center; margin:6px 0 18px}
+.finances-page .donut{position:relative; width:190px; height:190px}
+.finances-page .donut svg{display:block; width:100%; height:100%; overflow:visible}
+.finances-page .donut-segment{cursor:pointer; outline:none; transform-box:fill-box; transform-origin:center; transition:transform .22s ease, filter .22s ease}
+.finances-page .donut-segment:hover,
+.finances-page .donut-segment:focus-visible{transform:translate(var(--segment-shift-x),var(--segment-shift-y)); filter:brightness(1.08)}
+.finances-page .donut-hole{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  width:46%; height:46%; border-radius:50%; background:var(--panel);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  pointer-events:none;
+}
+.finances-page .donut-tooltip{
+  position:absolute; left:var(--tooltip-x,100%); top:var(-80%,50%);
+  z-index:2; display:flex; align-items:flex-start; gap:7px; width:max-content; max-width:142px;
+  padding:7px 9px; border:1px solid var(--line); border-radius:7px; background:var(--panel);
+  box-shadow:0 7px 18px rgba(0,0,0,.28); pointer-events:none; opacity:0;
+  transform:translate(-50%,-50%) scale(.94); transition:opacity .18s ease, transform .18s ease;
+}
+.finances-page .donut-tooltip.visible{opacity:1; transform:translate(-50%,-50%) scale(1)}
+.finances-page .donut-tooltip-swatch{width:8px; height:8px; flex:0 0 8px; margin-top:4px; border-radius:50%}
+.finances-page .donut-tooltip-content{display:flex; flex-direction:column; gap:2px; font-size:11px; line-height:1.2; white-space:nowrap}
+.finances-page .donut-tooltip-label{font-size:11px}
+.finances-page .donut-tooltip-value{font-family:var(--mono)}
+.finances-page .donut-tooltip-percentage,
+.finances-page .donut-tooltip-separator{color:var(--sub)}
+.finances-page .donut-legend{display:flex; flex-direction:column; gap:8px}
+.finances-page .legend-row{display:flex; align-items:center; gap:8px; font-size:13px}
+.finances-page .legend-dot{width:9px; height:9px; border-radius:50%; flex:0 0 9px}
+.finances-page .legend-amt{margin-left:auto}
+
+@media(max-width:720px){
+  .finances-page .dash-actions .export-csv,
+  .finances-page .dash-actions .btn{flex:1; justify-content:center}
+  .finances-page .finance-overview-head{align-items:flex-start; flex-direction:column; gap:10px}
+  .finances-page .finance-cash-hero{align-items:flex-start; flex-direction:column; margin:14px; padding:16px}
+  .finances-page .finance-cash-period{text-align:left}
+  .finances-page .finance-kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .finances-page .finance-kpi:nth-child(2){border-right:none}
+  .finances-page .finance-kpi:nth-child(-n+2){border-bottom:1px solid var(--line)}
+  .finances-page .withdrawal-delete span:last-child{display:none}
+  .finances-page .withdrawal-delete{padding:4px 6px}
+}
