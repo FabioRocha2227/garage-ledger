@@ -1,0 +1,6 @@
+:root{
+  --bg:#1b1d21; --panel:#232529; --panel2:#2a2d32; --line:#3a3d43;
+  --text:#e9e8e4; --sub:#9a9da4; --accent:#e0611e; --accent2:#f0863f;
+  --good:#5fb383; --bad:#d5615a; --service:#5fd0c0; --service-bg:#1c3a3a;
+  --inventory:#6fb3e0; --tool:#e0c05f; --mono:'SF Mono','Roboto Mono',Consolas,monospace;
+}

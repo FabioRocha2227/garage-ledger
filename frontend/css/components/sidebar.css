@@ -1,0 +1,51 @@
+.app{display:flex; min-height:100%}
+main{flex:1; width:100%; max-width:1500px; margin:0 auto; padding:28px 48px; overflow-x:auto}
+
+.side{width:250px; flex:0 0 250px; background:var(--panel); border-right:1px solid var(--line); padding:24px 16px; position:sticky; top:0; height:100vh; overflow:visible; transition:width .22s ease, flex-basis .22s ease, padding .22s ease; z-index:30}
+.side-header{display:flex; align-items:center; justify-content:space-between; gap:12px; height:34px; margin-bottom:4px}
+.brand{max-width:170px; font-size:18px; font-weight:700; letter-spacing:-.02em; margin:0 0 2px 4px; white-space:nowrap; overflow:hidden; opacity:1; transition:max-width .22s ease, opacity .16s ease, margin .22s ease}
+.brand span{color:var(--accent)}
+.brand-mark{display:none}
+.tagline{height:18px; font-size:12px; line-height:18px; color:var(--sub); margin:0 0 30px 4px; opacity:1; transition:opacity .16s ease}
+nav{display:flex; flex-direction:column; gap:4px}
+.side nav button{display:flex; flex-direction:row; align-items:center; flex-wrap:nowrap; gap:14px; position:relative; width:100%; text-align:left; background:none; border:1px solid transparent; color:var(--sub);padding:11px 12px; font-size:14px; border-radius:8px; cursor:pointer; transition:background .15s ease, color .15s ease, border-color .15s ease, padding .22s ease, gap .22s ease}
+.side nav button:hover{background:var(--panel2); color:var(--text); border-color:var(--line)}
+.side nav button.active{background:rgba(224,97,30,.14); color:var(--accent2); border-color:rgba(224,97,30,.28)}
+.nav-icon{display:inline-flex; align-items:center; justify-content:center; width:20px; height:20px; flex:0 0 20px; line-height:1}
+.nav-icon svg{width:19px; height:19px; fill:none; stroke:currentColor; stroke-linecap:round; stroke-linejoin:round; stroke-width:1.7}
+.nav-label{display:block; max-width:170px; min-width:0; white-space:nowrap; line-height:20px; overflow:hidden; opacity:1; transition:max-width .22s ease, opacity .14s ease}
+
+.sidebar-collapsed .side{width:72px; flex-basis:72px; padding-left:12px; padding-right:12px}
+.sidebar-collapsed .side-header{justify-content:center; gap:0}
+.sidebar-collapsed .brand{max-width:0; opacity:0; margin-left:0; margin-right:0}
+.sidebar-collapsed .tagline{visibility:hidden; opacity:0}
+.sidebar-collapsed .sidebar-toggle{font-size:21px}
+.sidebar-collapsed .side nav button{justify-content:center; min-height:47px; padding:11px 0; gap:0; text-align:center}
+.sidebar-collapsed nav button .nav-label{max-width:0; opacity:0}
+.sidebar-collapsed nav button .nav-icon{display:flex; align-items:center; justify-content:center; width:20px; height:20px; margin:0 auto}
+.sidebar-collapsed nav button .nav-icon svg{display:block; width:19px; height:19px; margin:0}
+.sidebar-collapsed nav button.active{background:rgba(224,97,30,.16); border-color:rgba(224,97,30,.3)}
+.sidebar-collapsed nav button::after{content:attr(data-tooltip); position:absolute; left:calc(100% + 12px); top:50%; z-index:100; padding:7px 10px; border:1px solid var(--line); border-radius:6px; background:#15171a; color:var(--text); box-shadow:0 6px 16px rgba(0,0,0,.28); font-size:12px; line-height:1.2; white-space:nowrap; pointer-events:none; opacity:0; transform:translateY(-50%) translateX(-4px); transition:opacity .16s ease .08s, transform .16s ease .08s}
+.sidebar-collapsed nav button:hover::after,.sidebar-collapsed nav button:focus-visible::after{opacity:1; transform:translateY(-50%) translateX(0)}
+.sidebar-backdrop{display:none}
+
+.sidebar-toggle{display:flex; align-items:center; justify-content:center; width:30px; height:30px; flex:0 0 30px; border:1px solid var(--line); border-radius:7px; background:var(--panel2); color:var(--sub); cursor:pointer; font-size:22px; line-height:1; transition:background .15s ease, color .15s ease, border-color .15s ease, transform .22s ease}
+.sidebar-toggle:hover{background:var(--accent); color:#fff; border-color:var(--accent)}
+.sidebar-toggle:focus-visible,nav button:focus-visible{outline:2px solid var(--accent2); outline-offset:2px}
+
+@media(max-width:720px){
+  .app{flex-direction:column}
+  .side{width:100%; flex:0 0 auto; height:auto; min-height:58px; position:fixed; top:0; left:0; right:0; padding:12px 16px; border-right:0; border-bottom:1px solid var(--line); z-index:40}
+  .side-header{margin:0}
+  .sidebar-toggle{margin-left:auto}
+  .tagline{display:none}
+  nav{display:none}
+  .mobile-sidebar-open .side{min-height:100vh; align-items:stretch; flex-direction:column; padding:18px 16px}
+  .mobile-sidebar-open nav{display:flex; margin-top:28px}
+  .mobile-sidebar-open nav button{padding:12px}
+  .sidebar-backdrop{display:block; position:fixed; inset:0; z-index:35; border:0; background:rgba(0,0,0,.55); opacity:0; pointer-events:none; transition:opacity .22s ease}
+  .mobile-sidebar-open .sidebar-backdrop{opacity:1; pointer-events:auto}
+  main{padding:82px 18px 18px}
+  .sidebar-collapsed .side{width:100%; flex-basis:auto; padding:12px 16px}
+  .sidebar-collapsed .side-header{width:100%}
+}

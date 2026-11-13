@@ -13,6 +13,7 @@ function renderServices() {
   const totalProfit = services.reduce((s, j) => s + j.profit, 0);
 
   return `
+    <div class="services-page">
     <div class="dash-head">
       <div>
         <h1>Service Jobs</h1>
@@ -35,6 +36,7 @@ function renderServices() {
     ${showLogServiceForm ? renderLogServiceForm() : ''}
 
     ${sorted.length === 0 ? '<div class="empty">No service jobs logged yet.</div>' : `<div class="service-list">${sorted.map(serviceCard).join('')}</div>`}
+    </div>
   `;
 }
 

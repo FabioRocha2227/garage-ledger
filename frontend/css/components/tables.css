@@ -1,0 +1,12 @@
+table{width:100%; border-collapse:collapse; font-size:14px}
+th{text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--sub); padding:8px 10px; border-bottom:1px solid var(--line)}
+td{padding:9px 10px; border-bottom:1px solid var(--line)}
+tr:hover td{background:var(--panel2)}
+.dash-table td,.dash-table th{padding:10px}
+.dash-table tr{cursor:pointer}
+.veh-cell{display:flex; align-items:center; gap:10px}
+.veh-thumb{width:40px; height:32px; border-radius:5px; object-fit:cover; flex:0 0 40px; border:1px solid var(--line)}
+.veh-thumb-placeholder{display:flex; align-items:center; justify-content:center; background:var(--panel2); font-size:15px}
+.row-actions{gap:8px; align-items:center}
+.icon-btn{background:none; border:1px solid var(--line); border-radius:6px; width:30px; height:30px; cursor:pointer; font-size:13px; line-height:1}
+.icon-btn:hover{border-color:var(--accent)}

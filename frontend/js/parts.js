@@ -16,6 +16,7 @@ function renderParts() {
   const d = inventoryValues(consumables, tools);
 
   return `
+    <div class="parts-page">
     <div class="dash-head">
       <div>
         <h1>Parts Inventory</h1>
@@ -47,6 +48,7 @@ function renderParts() {
     </div>
 
     ${renderInventoryDistribution(d)}
+    </div>
   `;
 }
 

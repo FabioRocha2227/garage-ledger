@@ -1,0 +1,11 @@
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:flex-end; margin-bottom:10px}
+.field{display:flex; flex-direction:column; gap:4px}
+.field label{font-size:11px; color:var(--sub)}
+input,select{background:var(--bg); border:1px solid var(--line); color:var(--text); padding:8px 10px; border-radius:6px; font-size:14px; font-family:inherit}
+input:focus,select:focus{outline:1px solid var(--accent)}
+.photos{display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px}
+.photo{position:relative; width:110px; height:80px; border-radius:6px; overflow:hidden; border:1px solid var(--line)}
+.photo img{width:100%; height:100%; object-fit:cover; display:block}
+.photo .rm{position:absolute; top:2px; right:2px; background:rgba(0,0,0,.6); color:#fff; border:none; border-radius:4px; width:20px; height:20px; cursor:pointer; font-size:12px; line-height:1}
+.uploadbtn{display:inline-block; padding:8px 14px; border:1px dashed var(--line); border-radius:6px; color:var(--sub); font-size:13px; cursor:pointer}
+.uploadbtn:hover{border-color:var(--accent); color:var(--text)}

@@ -1,0 +1,14 @@
+.sidebar-toggle{appearance:none}
+button.btn{background:var(--accent); color:#fff; border:none; padding:9px 16px; border-radius:6px; font-size:14px; cursor:pointer; font-weight:600}
+button.btn:hover{background:var(--accent2)}
+button.ghost{background:none; border:1px solid var(--line); color:var(--sub); padding:6px 12px; border-radius:6px; cursor:pointer; font-size:13px}
+button.ghost:hover{border-color:var(--accent); color:var(--text)}
+.filter-tabs{display:flex; background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:3px; gap:2px}
+.filter-tabs .tab{background:none; border:none; color:var(--sub); font-size:13px; padding:6px 12px; border-radius:6px; cursor:pointer}
+.filter-tabs .tab:hover{color:var(--text)}
+.filter-tabs .tab.active{background:var(--accent); color:#fff; font-weight:600}
+.sort-select{font-size:13px; padding:8px 10px}
+.linklike{color:var(--accent2); cursor:pointer; text-decoration:none; font-weight:600}
+.linklike:hover{text-decoration:underline}
+.backbtn{color:var(--sub); cursor:pointer; font-size:13px; margin-bottom:14px; display:inline-block}
+.backbtn:hover{color:var(--text)}
