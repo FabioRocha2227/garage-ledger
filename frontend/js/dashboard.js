@@ -17,6 +17,7 @@ function renderDashboard() {
   loadDashboardExtras();
 
   return `
+    <div class="dashboard-page">
     <div class="dash-head">
       <div>
         <h1>${greeting()}.</h1>
@@ -96,6 +97,7 @@ function renderDashboard() {
           <div id="dash-inprogress"><div class="empty">Loading…</div></div>
         </div>
       </div>
+    </div>
     </div>
   `;
 }

@@ -1,0 +1,25 @@
+/* Dashboard page: summary cards and quick activity panels. */
+
+.dashboard-page .accent-text{color:var(--accent2)}
+.dashboard-page .dash-stats{grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+
+.dashboard-page .stat-icon{display:flex; align-items:flex-start; gap:12px}
+.dashboard-page .icon-orange{background:#4a2c18; color:var(--accent2)}
+.dashboard-page .icon-blue{background:#1c2f42; color:#6fb3e0}
+.dashboard-page .icon-purple{background:#302447; color:#b48be0}
+.dashboard-page .icon-amber{background:#4a3c18; color:#e0c05f}
+.dashboard-page .stat-icon .label{margin-bottom:4px}
+.dashboard-page .stat-icon .num{font-size:20px}
+
+.dashboard-page .ledger-row{display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--line)}
+.dashboard-page .ledger-row:last-child{border-bottom:none}
+.dashboard-page .ledger-icon{
+  width:30px; height:30px; border-radius:50%; flex:0 0 30px;
+  display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700;
+}
+.dashboard-page .ledger-icon.in{background:#1e3a2c; color:var(--good)}
+.dashboard-page .ledger-icon.out{background:#4a2420; color:var(--bad)}
+.dashboard-page .ledger-text{flex:1; min-width:0}
+.dashboard-page .ledger-title{font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.dashboard-page .ledger-sub{font-size:11px; color:var(--sub)}
+.dashboard-page .dash-fullwidth{width:100%; text-align:center; margin-top:12px}
