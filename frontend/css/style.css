@@ -306,7 +306,7 @@ button.ghost:hover{border-color:var(--accent); color:var(--text)}
 .view-toggle button.active{background:var(--accent); color:#fff}
 .view-toggle button:hover:not(.active){color:var(--text)}
 
-.row-actions{display:flex; gap:8px; align-items:center}
+.row-actions{gap:8px; align-items:center}
 .icon-btn{background:none; border:1px solid var(--line); border-radius:6px; width:30px; height:30px; cursor:pointer; font-size:13px; line-height:1}
 .icon-btn:hover{border-color:var(--accent)}
 
