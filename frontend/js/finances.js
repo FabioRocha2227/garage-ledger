@@ -374,19 +374,106 @@ function buildExpenseCategories(entries) {
 
 function renderExpenseDonut({ list, total }) {
   let cum = 0;
-  const stops = list.map(b => {
-    const start = (cum / total * 100);
+  const segments = list.map(b => {
+    const start = cum / total * Math.PI * 2 - Math.PI / 2;
+    const end = (cum + b.value) / total * Math.PI * 2 - Math.PI / 2;
+    const mid = (start + end) / 2;
+    const shiftX = Math.cos(mid) * 5;
+    const shiftY = Math.sin(mid) * 5;
     cum += b.value;
-    return `${b.color} ${start.toFixed(2)}% ${(cum / total * 100).toFixed(2)}%`;
-  }).join(', ');
+    return `<path class="donut-segment"
+      d="${donutSegmentPath(start, end)}"
+      fill="${b.color}"
+      style="--segment-shift-x:${shiftX.toFixed(2)}px; --segment-shift-y:${shiftY.toFixed(2)}px"
+      data-label="${esc(b.label)}"
+      data-value="€${fmt(b.value)}"
+      data-percentage="${Math.round(b.value / total * 100)}%"
+      data-color="${b.color}"
+      data-tooltip-angle="${mid}"
+      onmouseenter="showDonutTooltip(this)"
+      onmouseleave="hideDonutTooltip(this)"
+      onfocus="showDonutTooltip(this)"
+      onblur="hideDonutTooltip(this)"
+      tabindex="0"
+      role="img"
+      aria-label="${esc(b.label)}: €${fmt(b.value)}, ${Math.round(b.value / total * 100)}%"></path>`;
+  }).join('');
   return `
     <div class="donut-wrap">
-      <div class="donut" style="background:conic-gradient(${stops})">
+      <div class="donut">
+        <svg viewBox="0 0 200 200" aria-label="Expense breakdown">
+          ${segments}
+        </svg>
         <div class="donut-hole"><div class="small">Total</div><div class="mono" style="font-size:14px">€${fmt(total)}</div></div>
+        <div class="donut-tooltip" role="status" aria-live="polite">
+          <span class="donut-tooltip-swatch"></span>
+          <span class="donut-tooltip-content">
+            <strong class="donut-tooltip-label"></strong>
+            <span><span class="donut-tooltip-value"></span><span class="donut-tooltip-separator"> · </span><span class="donut-tooltip-percentage"></span></span>
+          </span>
+        </div>
       </div>
     </div>
     <div class="donut-legend">
       ${list.map(b => `<div class="legend-row"><span class="legend-dot" style="background:${b.color}"></span>${esc(b.label)}<span class="mono legend-amt">€${fmt(b.value)}</span></div>`).join('')}
     </div>
   `;
+}
+
+function donutPoint(angle, radius) {
+  return `${(100 + Math.cos(angle) * radius).toFixed(2)} ${(100 + Math.sin(angle) * radius).toFixed(2)}`;
+}
+
+function donutSegmentPath(start, end) {
+  const outer = 84, inner = 44;
+  const span = end - start;
+  if (span >= Math.PI * 2 - 0.001) {
+    return `M ${donutPoint(start, outer)} A ${outer} ${outer} 0 1 1 ${donutPoint(start + Math.PI, outer)} A ${outer} ${outer} 0 1 1 ${donutPoint(start, outer)} L ${donutPoint(start, inner)} A ${inner} ${inner} 0 1 0 ${donutPoint(start + Math.PI, inner)} A ${inner} ${inner} 0 1 0 ${donutPoint(start, inner)} Z`;
+  }
+  const largeArc = span > Math.PI ? 1 : 0;
+  return `M ${donutPoint(start, outer)} A ${outer} ${outer} 0 ${largeArc} 1 ${donutPoint(end, outer)} L ${donutPoint(end, inner)} A ${inner} ${inner} 0 ${largeArc} 0 ${donutPoint(start, inner)} Z`;
+}
+
+function showDonutTooltip(segment) {
+  const wrap = segment.closest('.donut-wrap');
+  const donut = wrap.querySelector('.donut');
+  const tooltip = wrap.querySelector('.donut-tooltip');
+  tooltip.querySelector('.donut-tooltip-swatch').style.background = segment.dataset.color;
+  tooltip.querySelector('.donut-tooltip-label').textContent = segment.dataset.label;
+  tooltip.querySelector('.donut-tooltip-value').textContent = segment.dataset.value;
+  tooltip.querySelector('.donut-tooltip-percentage').textContent = segment.dataset.percentage;
+  tooltip.classList.add('visible');
+
+  const donutRect = donut.getBoundingClientRect();
+  const tooltipRect = tooltip.getBoundingClientRect();
+  const angle = Number(segment.dataset.tooltipAngle);
+  const directionX = Math.cos(angle);
+  const directionY = Math.sin(angle);
+  const halfWidth = tooltipRect.width / 2;
+  const halfHeight = tooltipRect.height / 2;
+  const radialExtent = halfWidth * Math.abs(directionX) + halfHeight * Math.abs(directionY);
+  const outerRadius = Math.min(donutRect.width, donutRect.height) * 84 / 200;
+  const distance = outerRadius + 14 + radialExtent;
+  const centerX = donutRect.width / 2;
+  const centerY = donutRect.height / 2;
+  let left = centerX + directionX * distance;
+  let top = centerY + directionY * distance;
+
+  const panel = wrap.closest('.panel');
+  const boundary = panel ? panel.getBoundingClientRect() : {
+    left: 0, right: window.innerWidth, top: 0, bottom: window.innerHeight,
+  };
+  const minLeft = Math.max(halfWidth + 8, boundary.left - donutRect.left + halfWidth + 8, halfWidth + 8 - donutRect.left);
+  const maxLeft = Math.min(boundary.right - donutRect.left - halfWidth - 8, window.innerWidth - donutRect.left - halfWidth - 8);
+  const minTop = Math.max(halfHeight + 8, boundary.top - donutRect.top + halfHeight + 8, halfHeight + 8 - donutRect.top);
+  const maxTop = Math.min(boundary.bottom - donutRect.top - halfHeight - 8, window.innerHeight - donutRect.top - halfHeight - 8);
+  left = Math.min(Math.max(left, minLeft), maxLeft);
+  top = Math.min(Math.max(top, minTop), maxTop);
+  tooltip.style.setProperty('--tooltip-x', `${left}px`);
+  tooltip.style.setProperty('--tooltip-y', `${top}px`);
+}
+
+function hideDonutTooltip(segment) {
+  const wrap = segment.closest('.donut-wrap');
+  wrap.querySelector('.donut-tooltip').classList.remove('visible');
 }
