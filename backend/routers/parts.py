@@ -7,9 +7,9 @@ from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from sqlmodel import Session, select
 
 from backend.database import get_session, UPLOADS_DIR
-from backend.models import ConsumablePurchase, Part, Photo
-from backend.schemas import ConsumablePurchaseIn, PartIn
-from backend.helper import consumable_out, part_out, save_upload, get_part_or_404
+from backend.models import ConsumablePurchase, Part, Photo, ToolPurchase
+from backend.schemas import ConsumablePurchaseIn, PartIn, ToolPurchaseIn
+from backend.helper import consumable_out, part_out, save_upload, get_part_or_404, tool_out
 
 router = APIRouter(tags=["parts"])
 
@@ -69,6 +69,28 @@ def delete_consumable(purchase_id: int, session: Session = Depends(get_session))
     purchase = session.get(ConsumablePurchase, purchase_id)
     if not purchase:
         raise HTTPException(404, "Consumable purchase not found")
+    session.delete(purchase)
+    session.commit()
+    return {"ok": True}
+
+@router.get("/api/tools")
+def list_tools(session: Session = Depends(get_session)):
+    purchases = session.exec(select(ToolPurchase)).all()
+    return [tool_out(p) for p in sorted(purchases, key=lambda p: (p.date, p.created_at), reverse=True)]
+
+@router.post("/api/tools")
+def create_tool(data: ToolPurchaseIn, session: Session = Depends(get_session)):
+    purchase = ToolPurchase(**data.dict())
+    session.add(purchase)
+    session.commit()
+    session.refresh(purchase)
+    return tool_out(purchase)
+
+@router.delete("/api/tools/{purchase_id}")
+def delete_tool(purchase_id: int, session: Session = Depends(get_session)):
+    purchase = session.get(ToolPurchase, purchase_id)
+    if not purchase:
+        raise HTTPException(404, "Tool purchase not found")
     session.delete(purchase)
     session.commit()
     return {"ok": True}

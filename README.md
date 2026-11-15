@@ -52,13 +52,17 @@ The FastAPI documentation is available at [http://127.0.0.1:8000/docs](http://12
 
 ## Demo Data
 
-To populate a new database with sample cars, parts, and service data, run:
+To populate a new database with sample cars, legacy inventory data, service data, consumables expenses, and tool expenses, run:
 
 ```bash
 python -m backend.seed_demo
 ```
 
 The seed script does not overwrite an existing non-empty database.
+
+The database must be empty. To start over, stop the application first, then remove
+`backend/garage.db` and run the command again. The script refuses to add duplicate
+demo records to an existing database.
 
 ## Testing
 

@@ -72,7 +72,7 @@ async function refresh() {
     cars = await api('/cars');
     m.innerHTML = activeCarId ? renderCarDetail(cars.find(c => c.id === activeCarId)) : renderCars();
   } else if (view === 'parts') {
-    [parts, consumables] = await Promise.all([api('/parts'), api('/consumables')]);
+    [parts, consumables, toolPurchases] = await Promise.all([api('/parts'), api('/consumables'), api('/tools')]);
     m.innerHTML = renderParts();
   } else if (view === 'services') {
     parts = await api('/parts');

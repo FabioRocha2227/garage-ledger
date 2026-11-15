@@ -9,7 +9,7 @@ from sqlmodel import Session, select
 from datetime import datetime
 
 from backend.database import get_session
-from backend.models import Car, ConsumablePurchase, ServiceJob, OwnerWithdrawal
+from backend.models import Car, ConsumablePurchase, ServiceJob, OwnerWithdrawal, ToolPurchase
 from backend.schemas import OwnerWithdrawalIn
 from backend.helper import car_cost, car_out, service_cost, service_out
 
@@ -38,6 +38,8 @@ def dashboar(session:Session  = Depends(get_session)):
     service_profit = sum(s.price - service_cost(s) for s in services)
     consumables = session.exec(select(ConsumablePurchase)).all()
     consumable_expenses = sum(purchase.quantity * purchase.unit_cost for purchase in consumables)
+    tools = session.exec(select(ToolPurchase)).all()
+    tool_expenses = sum(purchase.quantity * purchase.unit_cost for purchase in tools)
 
     return {
         "invested": car_invested,
@@ -52,8 +54,9 @@ def dashboar(session:Session  = Depends(get_session)):
         "service_profit": service_profit,
         "service_jobs": len(services),
         "total_revenue": car_revenue + service_revenue,
-        "total_profit": car_profit + service_profit - consumable_expenses,
+        "total_profit": car_profit + service_profit - consumable_expenses - tool_expenses,
         "consumable_expenses": consumable_expenses,
+        "tool_expenses": tool_expenses,
     }
 
 def _all_transactions(session: Session):
@@ -88,6 +91,16 @@ def _all_transactions(session: Session):
             "timestamp": _stamp(purchase.date, purchase.created_at),
             "car": "Consumables",
             "type": f"Consumable: {purchase.name}",
+            "amount": -(purchase.quantity * purchase.unit_cost),
+        })
+
+    tools = session.exec(select(ToolPurchase)).all()
+    for purchase in tools:
+        entries.append({
+            "date": str(purchase.date),
+            "timestamp": _stamp(purchase.date, purchase.created_at),
+            "car": "Tools & Equipment",
+            "type": f"Tool: {purchase.name}",
             "amount": -(purchase.quantity * purchase.unit_cost),
         })
 

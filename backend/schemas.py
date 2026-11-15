@@ -83,6 +83,9 @@ class ConsumablePurchaseIn(BaseModel):
     _quantity_must_be_integer = field_validator("quantity", mode="before")(_require_positive_integer)
     _unit_cost_must_be_valid = field_validator("unit_cost", mode="before")(_require_non_negative_number)
 
+class ToolPurchaseIn(ConsumablePurchaseIn):
+    pass
+
 class PartUsageIn(BaseModel):
     part_id: int = Field(gt=0)
     qty: int = Field(default=1, gt=0)

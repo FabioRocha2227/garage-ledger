@@ -10,7 +10,7 @@ from fastapi import HTTPException, UploadFile
 from sqlmodel import Session
 
 from backend.database import UPLOADS_DIR
-from backend.models import Car, ConsumablePurchase, Part, ServiceJob
+from backend.models import Car, ConsumablePurchase, Part, ServiceJob, ToolPurchase
 
 
 def car_cost(car: Car) -> float:
@@ -56,6 +56,17 @@ def part_out(part: Part) -> dict:
     }
 
 def consumable_out(purchase: ConsumablePurchase) -> dict:
+    return {
+        "id": purchase.id,
+        "date": purchase.date,
+        "name": purchase.name,
+        "quantity": purchase.quantity,
+        "unit_cost": purchase.unit_cost,
+        "total": purchase.quantity * purchase.unit_cost,
+        "supplier": purchase.supplier,
+    }
+
+def tool_out(purchase: ToolPurchase) -> dict:
     return {
         "id": purchase.id,
         "date": purchase.date,

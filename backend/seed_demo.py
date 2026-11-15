@@ -4,7 +4,7 @@ from datetime import date
 from sqlmodel import Session, select
 
 from backend.database import engine, init_db
-from backend.models import Car, Expense, Part, PartUsage, Repair, ServiceJob, ServicePartUsage
+from backend.models import Car, ConsumablePurchase, Expense, Part, PartUsage, Repair, ServiceJob, ServicePartUsage, ToolPurchase
 
 
 def seed_demo() -> None:
@@ -14,6 +14,8 @@ def seed_demo() -> None:
             session.exec(select(Car)).first()
             or session.exec(select(Part)).first()
             or session.exec(select(ServiceJob)).first()
+            or session.exec(select(ConsumablePurchase)).first()
+            or session.exec(select(ToolPurchase)).first()
         ):
             raise RuntimeError("Database already contains data; refusing to add duplicate seed records.")
 
@@ -102,9 +104,41 @@ def seed_demo() -> None:
                 cost=12,
             )
         )
+        session.add_all(
+            [
+                ConsumablePurchase(
+                    date=date(2026, 8, 19),
+                    name="Nitrile gloves",
+                    quantity=4,
+                    unit_cost=8.50,
+                    supplier="Workshop Safety Co",
+                ),
+                ConsumablePurchase(
+                    date=date(2026, 9, 6),
+                    name="Microfiber cloths",
+                    quantity=2,
+                    unit_cost=14.00,
+                    supplier="Clean Garage Supplies",
+                ),
+                ConsumablePurchase(
+                    date=date(2026, 9, 18),
+                    name="Brake cleaner spray",
+                    quantity=6,
+                    unit_cost=5.75,
+                    supplier="Auto Parts Co",
+                ),
+                ToolPurchase(
+                    date=date(2026, 8, 18),
+                    name="Workshop jack",
+                    quantity=1,
+                    unit_cost=250,
+                    supplier="Garage Tools",
+                ),
+            ]
+        )
         session.commit()
 
-    print("Seeded 3 cars, 4 inventory items, 5 car costs, 1 service job, and 3 part usages.")
+    print("Seeded 3 cars, 4 legacy inventory items, 5 car costs, 1 service job, 3 part usages, 3 consumable purchases, and 1 tool purchase.")
 
 
 if __name__ == "__main__":

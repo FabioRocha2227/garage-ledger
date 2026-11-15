@@ -10,6 +10,7 @@
 let showAddPartForm = false;
 let showConsumableForm = false;
 let consumablesHistoryOpen = true;
+let toolsHistoryOpen = true;
 
 function renderParts() {
   const sorted = [...parts].sort((a, b) => a.name.localeCompare(b.name));
@@ -35,13 +36,8 @@ function renderParts() {
     </div>
     ${showAddPartForm ? renderAddPartForm() : ''}
     ${renderConsumablesHistory()}
+    ${renderToolsHistory()}
 
-    <div class="inventory-section inventory-tools-section">
-      <div class="inventory-section-head inventory-tools-head"><h2>Tools &amp; Equipment <span class="small">(${tools.length})</span></h2></div>
-      ${renderPartsTable(tools, true)}
-    </div>
-
-    ${renderInventoryDistribution(d)}
     </div>
   `;
 }
@@ -93,6 +89,31 @@ function renderConsumableForm() {
   `;
 }
 
+function renderToolsHistory() {
+  const total = toolPurchases.reduce((sum, item) => sum + (Number(item.total) || 0), 0);
+  return `
+    <div class="inventory-section tools-history">
+      <details class="panel consumables-history-panel" ${toolsHistoryOpen ? 'open' : ''} ontoggle="toolsHistoryOpen = this.open">
+        <summary class="consumables-history-summary">
+          <span><strong>Tools &amp; Equipment Purchases</strong><span class="small">${toolPurchases.length} purchase${toolPurchases.length === 1 ? '' : 's'}</span></span>
+          <span class="consumables-history-total">Total expenses: <strong>€${fmt(total)}</strong></span>
+        </summary>
+        <div class="consumables-history-content">
+          ${toolPurchases.length === 0 ? '<div class="empty">No tools or equipment purchases logged yet.</div>' : `
+          <table class="dash-table"><thead><tr><th>Date</th><th>Tool / equipment</th><th>Quantity</th><th>Unit cost</th><th>Total</th><th>Supplier</th><th></th></tr></thead><tbody>
+          ${toolPurchases.map(item => `<tr>
+            <td class="mono small">${esc(item.date)}</td><td><strong>${esc(item.name)}</strong></td>
+            <td class="mono">${item.quantity}</td><td class="mono">€${fmt(item.unit_cost)}</td>
+            <td class="mono">€${fmt(item.total)}</td><td class="small">${item.supplier ? esc(item.supplier) : '—'}</td>
+            <td><button class="icon-btn" title="Remove purchase" onclick="deleteToolPurchase(${item.id})">🗑️</button></td>
+          </tr>`).join('')}
+          </tbody></table>`}
+        </div>
+      </details>
+    </div>
+  `;
+}
+
 function toggleConsumableForm() {
   showConsumableForm = !showConsumableForm;
   document.getElementById('main').innerHTML = renderParts();
@@ -132,6 +153,7 @@ function renderAddPartForm() {
     <div class="panel">
       <h2>Add an item</h2>
       <div class="row">
+        <div class="field"><label>Purchase date</label><input id="pn-date" type="date" value="${today()}"></div>
         <div class="field"><label>Name</label><input id="pn-name" placeholder="e.g. Brake pads (front), or Car jack"></div>
         <input id="pn-category" type="hidden" value="tool">
         <div class="field"><label>Stock / qty owned</label><input id="pn-stock" type="number" min="0" value="1"></div>
@@ -220,13 +242,30 @@ function partThumb(p) {
 
 async function addPart() {
   const name = document.getElementById('pn-name').value.trim();
+  const quantity = Number(document.getElementById('pn-stock').value);
+  const unitCost = Number(document.getElementById('pn-cost').value) || 0;
   if (!name) { alert('Give it a name.'); return; }
+  if (!Number.isInteger(quantity) || quantity < 1 || unitCost < 0) {
+    alert('Enter a positive quantity and a valid unit cost.');
+    return;
+  }
   await api('/parts', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
       name,
       category: document.getElementById('pn-category').value,
-      stock: Number(document.getElementById('pn-stock').value) || 0,
-      unit_cost: Number(document.getElementById('pn-cost').value) || 0,
+      stock: quantity,
+      unit_cost: unitCost,
+      supplier: document.getElementById('pn-supplier').value.trim() || null
+    })
+  });
+  await api('/tools', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      date: document.getElementById('pn-date').value || today(),
+      name,
+      quantity,
+      unit_cost: unitCost,
       supplier: document.getElementById('pn-supplier').value.trim() || null
     })
   });
@@ -251,5 +290,11 @@ async function uploadPartPhoto(id, ev) {
 
 async function removePartPhoto(pid) {
   await api(`/photos/${pid}`, { method: 'DELETE' });
+  await setView('parts');
+}
+
+async function deleteToolPurchase(id) {
+  if (!confirm('Remove this tools and equipment purchase from the history?')) return;
+  await api(`/tools/${id}`, { method: 'DELETE' });
   await setView('parts');
 }

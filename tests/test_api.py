@@ -81,6 +81,20 @@ def create_consumable(client, name="Gloves", quantity=2, unit_cost=12.5, purchas
     assert response.status_code == 200, response.text
     return response.json()
 
+def create_tool_purchase(client, name="Workshop jack", quantity=1, unit_cost=250, purchase_date="2026-09-10"):
+    response = client.post(
+        "/api/tools",
+        json={
+            "date": purchase_date,
+            "name": name,
+            "quantity": quantity,
+            "unit_cost": unit_cost,
+            "supplier": "Test supplier",
+        },
+    )
+    assert response.status_code == 200, response.text
+    return response.json()
+
 
 def test_health_and_car_crud(client):
     assert client.get("/health").json() == {"status": "ok"}
@@ -213,6 +227,18 @@ def test_consumable_history_validates_purchase_values(client):
         json={"date": "2026-09-10", "name": "Gloves", "quantity": 0, "unit_cost": 5},
     )
     assert response.status_code == 422
+
+def test_tool_purchase_enters_finances_and_profit(client):
+    purchase = create_tool_purchase(client, quantity=2, unit_cost=125)
+    assert purchase["total"] == 250
+    finances = client.get("/api/finances").json()
+    entry = next(e for e in finances["entries"] if e["type"] == "Tool: Workshop jack")
+    assert entry["amount"] == -250
+    assert finances["total_out"] == -250
+    dashboard = client.get("/api/dashboard").json()
+    assert dashboard["tool_expenses"] == 250
+    assert dashboard["total_profit"] == -250
+    assert client.delete(f"/api/tools/{purchase['id']}").status_code == 200
 
 def test_owner_withdrawal_enters_cash_ledger_without_reducing_profit(client):
     response = client.post(

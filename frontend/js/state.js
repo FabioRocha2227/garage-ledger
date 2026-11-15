@@ -13,6 +13,7 @@ let activeCarId = null;
 let cars = [];
 let parts = [];
 let consumables = [];
+let toolPurchases = [];
 let dashboardData = null;
 let financeData = null;
 
