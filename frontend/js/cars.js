@@ -259,23 +259,34 @@ function renderCarDetail(c) {
   if (!c) return renderCars();
   return `
     <div class="cars-page">
-    <span class="backbtn" onclick="setView('cars')">&larr; Back to cars</span>
-    <h1>${esc(c.name)} ${c.plate ? `<span class="small">(${esc(c.plate)})</span>` : ''}</h1>
-    <p class="sub">Purchased ${c.purchase_date} for €${fmt(c.purchase_price)} at ${fmt(c.km)} km ${statusBadge(c)}</p>
-    <div class="grid">
-      <div class="stat"><div class="label">Total cost so far</div><div class="num">€${fmt(c.cost)}</div></div>
-      <div class="stat"><div class="label">Sale price</div><div class="num">${c.sale_price != null ? '€' + fmt(c.sale_price) : '—'}</div></div>
-      <div class="stat"><div class="label">Profit</div><div class="num ${c.profit == null ? '' : (c.profit >= 0 ? 'pos' : 'neg')}">${c.profit == null ? 'Not sold yet' : (c.profit >= 0 ? '+' : '') + '€' + fmt(c.profit)}</div></div>
+    <div class="car-detail-head">
+      <div>
+        <span class="backbtn" onclick="setView('cars')">&larr; Back to cars</span>
+        <h1>${esc(c.name)}</h1>
+        <div class="car-detail-meta">
+          ${c.plate ? `<span class="car-meta-chip">${esc(c.plate)}</span>` : ''}
+          <span>Purchased ${c.purchase_date}</span>
+          <span>${fmt(c.km)} km at purchase</span>
+          ${statusBadge(c)}
+        </div>
+      </div>
+      <button class="ghost" onclick="delCar(${c.id})">Delete car</button>
+    </div>
+    <div class="grid car-detail-stats">
+      <div class="stat stat-icon car-stat car-stat-cost"><div class="icon-box">€</div><div><div class="label">Total cost</div><div class="num">€${fmt(c.cost)}</div><div class="stat-sub">Purchase and work</div></div></div>
+      <div class="stat stat-icon car-stat car-stat-purchase"><div class="icon-box">↗</div><div><div class="label">Purchase price</div><div class="num">€${fmt(c.purchase_price)}</div><div class="stat-sub">Bought on ${c.purchase_date}</div></div></div>
+      <div class="stat stat-icon car-stat car-stat-sale"><div class="icon-box">✓</div><div><div class="label">Sale price</div><div class="num">${c.sale_price != null ? '€' + fmt(c.sale_price) : '—'}</div><div class="stat-sub">${c.sale_date || 'Not sold yet'}</div></div></div>
+      <div class="stat stat-icon car-stat car-stat-profit"><div class="icon-box">↕</div><div><div class="label">Profit</div><div class="num ${c.profit == null ? '' : (c.profit >= 0 ? 'pos' : 'neg')}">${c.profit == null ? '—' : (c.profit >= 0 ? '+' : '') + '€' + fmt(c.profit)}</div><div class="stat-sub">${c.profit == null ? 'Complete the sale to calculate' : 'Final result'}</div></div></div>
     </div>
 
-    <div class="panel">
-      <h2>Photos</h2>
+    <div class="panel car-section car-photos">
+      <div class="panel-head"><div><h2>Photos</h2><p class="panel-caption">Keep a visual record of this car.</p></div></div>
       ${photoGrid(c.photos, 'removeCarPhoto')}
       <label class="uploadbtn">+ Add photo<input type="file" accept="image/*" style="display:none" onchange="uploadCarPhoto(${c.id}, event)"></label>
     </div>
 
-    <div class="panel">
-      <h2>Repairs & work done</h2>
+    <div class="panel car-section car-repairs">
+      <div class="panel-head"><div><h2>Repairs & work done</h2><p class="panel-caption">Track labour and maintenance costs.</p></div><span class="section-total">€${fmt(c.repairs.reduce((sum, repair) => sum + repair.cost, 0))}</span></div>
       ${c.repairs.length === 0 ? '<div class="empty">No repairs logged.</div>' : `
       <table><thead><tr><th>Date</th><th>Description</th><th>Cost</th><th></th></tr></thead><tbody>
       ${c.repairs.map(r => `<tr><td class="mono small">${r.date}</td><td>${esc(r.description)}</td><td class="mono">€${fmt(r.cost)}</td>
@@ -289,30 +300,8 @@ function renderCarDetail(c) {
       </div>
     </div>
 
-    <div class="panel">
-      <h2>Parts used from inventory</h2>
-      ${c.parts_used.length === 0 ? '<div class="empty">No parts recorded.</div>' : `
-      <table><thead><tr><th>Date</th><th>Part</th><th>Qty</th><th>Cost</th><th></th></tr></thead><tbody>
-      ${c.parts_used.map(p => `<tr><td class="mono small">${p.date}</td><td>${esc(p.part_name)}</td><td class="mono">${p.qty}</td><td class="mono">€${fmt(p.cost)}</td>
-      <td><button class="ghost" onclick="delPartUsed(${p.id})">Remove</button></td></tr>`).join('')}
-      </tbody></table>`}
-      <div class="row" style="margin-top:12px">
-        <div class="field"><label>Part</label>
-          <select id="pf-part">${(() => {
-            const consumables = parts.filter(p => p.category === 'part' && p.stock > 0);
-            return consumables.length === 0
-              ? '<option value="">No parts in inventory</option>'
-              : consumables.map(p => `<option value="${p.id}">${esc(p.name)} (${p.stock} in stock)</option>`).join('');
-          })()}</select>
-        </div>
-        <div class="field"><label>Qty</label><input id="pf-qty" type="number" min="1" value="1" style="width:70px"></div>
-        <button class="btn" onclick="usePart(${c.id})">Use part</button>
-      </div>
-    </div>
-
-    <div class="panel">
-      <h2>Other expenses</h2>
-      <p class="small" style="margin-top:-8px">Transport, registration, storage, advertising, etc.</p>
+    <div class="panel car-section car-expenses">
+      <div class="panel-head"><div><h2>Other expenses</h2><p class="panel-caption">Transport, registration, storage, advertising, etc.</p></div><span class="section-total">€${fmt(c.expenses.reduce((sum, expense) => sum + expense.cost, 0))}</span></div>
       ${c.expenses.length === 0 ? '<div class="empty">None recorded.</div>' : `
       <table><thead><tr><th>Date</th><th>Description</th><th>Cost</th><th></th></tr></thead><tbody>
       ${c.expenses.map(e => `<tr><td class="mono small">${e.date}</td><td>${esc(e.description)}</td><td class="mono">€${fmt(e.cost)}</td>
@@ -326,8 +315,8 @@ function renderCarDetail(c) {
       </div>
     </div>
 
-    <div class="panel">
-      <h2>Sale</h2>
+    <div class="panel car-section car-sale">
+      <div class="panel-head"><div><h2>Sale</h2><p class="panel-caption">Record the final sale when the car leaves stock.</p></div>${statusBadge(c)}</div>
       ${c.sale_price != null ? `
         <p>Sold on <strong>${c.sale_date}</strong> for <strong>€${fmt(c.sale_price)}</strong> to ${esc(c.sale_buyer || '—')}.</p>
         <button class="ghost" onclick="unsell(${c.id})">Undo sale</button>
@@ -340,7 +329,6 @@ function renderCarDetail(c) {
         </div>
       `}
     </div>
-    <button class="ghost" onclick="delCar(${c.id})">Delete this car</button>
     </div>
   `;
 }

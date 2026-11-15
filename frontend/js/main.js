@@ -8,7 +8,7 @@ const NAV = [
   ['dashboard', 'Dashboard', '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="7" rx="1"/><rect x="14" y="4" width="6" height="4" rx="1"/><rect x="4" y="15" width="6" height="5" rx="1"/><rect x="14" y="11" width="6" height="9" rx="1"/></svg>'],
   ['cars', 'Cars', '<svg viewBox="0 0 24 24"><path d="m5 17-1 2m15-2 1 2M5 17h14l1-6-2-4H6l-2 4 1 6Zm1-6h12M7 17h.01M17 17h.01"/></svg>'],
   ['services', 'Service Jobs', '<svg viewBox="0 0 24 24"><path d="m14 6 4-4 4 4-4 4m0-4-8 8m-2-2-5 5 4 4 5-5M4 20h4"/></svg>'],
-  ['parts', 'Parts Inventory', '<svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Zm0 9 8-4.5M12 12 4 7.5M12 12v9"/></svg>'],
+  ['parts', 'Inventory', '<svg viewBox="0 0 24 24"><path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Zm0 9 8-4.5M12 12 4 7.5M12 12v9"/></svg>'],
   ['finances', 'Finances', '<svg viewBox="0 0 24 24"><path d="M4 20V4m0 16h16M8 16v-5m4 5V8m4 8V5"/></svg>'],
 ];
 
@@ -72,7 +72,7 @@ async function refresh() {
     cars = await api('/cars');
     m.innerHTML = activeCarId ? renderCarDetail(cars.find(c => c.id === activeCarId)) : renderCars();
   } else if (view === 'parts') {
-    parts = await api('/parts');
+    [parts, consumables] = await Promise.all([api('/parts'), api('/consumables')]);
     m.innerHTML = renderParts();
   } else if (view === 'services') {
     parts = await api('/parts');

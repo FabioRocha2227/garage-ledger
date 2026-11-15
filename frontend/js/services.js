@@ -1,7 +1,6 @@
 // -----------------------------------------------------------------------
 // Service jobs: standalone work for a customer's own car (oil change,
-// inspection, a repair) — separate from cars bought to flip. Each job
-// tracks what was charged, labor cost, and any parts used from inventory.
+// inspection, a repair) — separate from cars bought to flip.
 // -----------------------------------------------------------------------
 
 let services = [];
@@ -41,7 +40,6 @@ function renderServices() {
 }
 
 function renderLogServiceForm() {
-  const availableParts = parts.filter(p => p.category !== 'tool' && p.stock > 0);
   return `
     <div class="panel service-form">
       <h2>Log a job</h2>
@@ -54,17 +52,6 @@ function renderLogServiceForm() {
         <div class="field" style="flex:1; min-width:220px"><label>Description</label><input id="jf-desc" placeholder="e.g. Oil change + filter"></div>
         <div class="field"><label>Price charged (€)</label><input id="jf-price" type="number" min="0" placeholder="0"></div>
         <div class="field"><label>Labor / other cost (€)</label><input id="jf-labor" type="number" min="0" placeholder="0"></div>
-      </div>
-      <div class="field"><label>Parts used</label>
-        ${availableParts.length === 0
-          ? '<span class="small">No consumable parts in inventory.</span>'
-          : availableParts.map(p => `
-            <div class="row" style="margin:4px 0; align-items:center">
-              <label style="display:flex; align-items:center; gap:8px; min-width:220px">
-                <input id="jf-part-${p.id}" type="checkbox"> ${esc(p.name)} (${p.stock} in stock)
-              </label>
-              <input id="jf-part-qty-${p.id}" type="number" min="1" max="${p.stock}" value="1" style="width:70px" aria-label="Quantity of ${esc(p.name)}">
-            </div>`).join('')}
       </div>
       <button class="btn" onclick="addService()">Add job</button>
     </div>
@@ -97,11 +84,6 @@ function serviceCard(j) {
           <span class="small">Job details</span>
           <button class="ghost" onclick="delService(${j.id})">Remove job</button>
         </div>
-        ${j.parts_used.length === 0 ? '<p class="small service-empty-detail">No parts recorded for this job.</p>' : `
-        <table><thead><tr><th>Part used</th><th>Qty</th><th>Cost</th><th></th></tr></thead><tbody>
-        ${j.parts_used.map(p => `<tr><td>${esc(p.part_name)}</td><td class="mono">${p.qty}</td><td class="mono">€${fmt(p.cost)}</td>
-        <td><button class="ghost" onclick="delServicePartUsed(${p.id})">Remove</button></td></tr>`).join('')}
-        </tbody></table>`}
         ${j.notes ? `<p class="small service-notes">${esc(j.notes)}</p>` : ''}
       </div>
     </details>
@@ -111,12 +93,6 @@ function serviceCard(j) {
 async function addService() {
   const desc = document.getElementById('jf-desc').value.trim();
   if (!desc) { alert('Describe the job.'); return; }
-  const partsUsed = parts
-    .filter(p => p.category !== 'tool' && document.getElementById(`jf-part-${p.id}`)?.checked)
-    .map(p => ({
-      part_id: p.id,
-      qty: Number(document.getElementById(`jf-part-qty-${p.id}`).value) || 1
-    }));
   await api('/services', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
       date: document.getElementById('jf-date').value || today(),
@@ -125,7 +101,7 @@ async function addService() {
       description: desc,
       price: Number(document.getElementById('jf-price').value) || 0,
       labor_cost: Number(document.getElementById('jf-labor').value) || 0,
-      parts_used: partsUsed
+      parts_used: []
     })
   });
   showLogServiceForm = false;

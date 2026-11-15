@@ -67,6 +67,20 @@ def create_part(client, name="Brake pads", stock=3, unit_cost=20, category="part
     assert response.status_code == 200, response.text
     return response.json()
 
+def create_consumable(client, name="Gloves", quantity=2, unit_cost=12.5, purchase_date="2026-09-10"):
+    response = client.post(
+        "/api/consumables",
+        json={
+            "date": purchase_date,
+            "name": name,
+            "quantity": quantity,
+            "unit_cost": unit_cost,
+            "supplier": "Test supplier",
+        },
+    )
+    assert response.status_code == 200, response.text
+    return response.json()
+
 
 def test_health_and_car_crud(client):
     assert client.get("/health").json() == {"status": "ok"}
@@ -176,6 +190,29 @@ def test_service_job_uses_inventory_and_enters_finances(client):
     assert any(entry["type"] == "Job: Oil change" and entry["amount"] == 120 for entry in entries)
     assert any(entry["type"] == "Labor: Oil change" and entry["amount"] == -40 for entry in entries)
     assert any(entry["type"] == "Part: Oil filter" and entry["amount"] == -15 for entry in entries)
+
+def test_consumable_history_enters_finances_and_can_be_deleted(client):
+    purchase = create_consumable(client, quantity=4, unit_cost=7.5)
+    assert purchase["total"] == 30
+    assert client.get("/api/consumables").json()[0]["name"] == "Gloves"
+
+    finances = client.get("/api/finances").json()
+    entry = next(e for e in finances["entries"] if e["type"] == "Consumable: Gloves")
+    assert entry["amount"] == -30
+    assert finances["total_out"] == -30
+    assert client.get("/api/dashboard").json()["consumable_expenses"] == 30
+    assert client.get("/api/dashboard").json()["total_profit"] == -30
+
+    assert client.delete(f"/api/consumables/{purchase['id']}").status_code == 200
+    assert client.get("/api/consumables").json() == []
+    assert not any(e["type"] == "Consumable: Gloves" for e in client.get("/api/finances").json()["entries"])
+
+def test_consumable_history_validates_purchase_values(client):
+    response = client.post(
+        "/api/consumables",
+        json={"date": "2026-09-10", "name": "Gloves", "quantity": 0, "unit_cost": 5},
+    )
+    assert response.status_code == 422
 
 def test_owner_withdrawal_enters_cash_ledger_without_reducing_profit(client):
     response = client.post(

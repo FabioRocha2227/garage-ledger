@@ -12,6 +12,7 @@ let activeCarId = null;
 // Cached data from the backend, refreshed each time a page is shown
 let cars = [];
 let parts = [];
+let consumables = [];
 let dashboardData = null;
 let financeData = null;
 

@@ -34,7 +34,7 @@ function renderDashboard() {
       <div class="stat stat-icon">
         <div class="icon-box icon-orange">€</div>
         <div>
-          <div class="label">Cars + jobs profit</div>
+          <div class="label">Business profit</div>
           <div class="num ${d.total_profit >= 0 ? 'pos' : 'neg'}">€${fmt(d.total_profit)}</div>
         </div>
       </div>

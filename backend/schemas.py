@@ -72,6 +72,17 @@ class PartIn(BaseModel):
     _stock_must_be_integer = field_validator("stock", mode="before")(_require_non_negative_integer)
     _unit_cost_must_be_valid = field_validator("unit_cost", mode="before")(_require_non_negative_number)
 
+class ConsumablePurchaseIn(BaseModel):
+    date: date_type
+    name: str = Field(min_length=1)
+    quantity: int = Field(default=1, gt=0)
+    unit_cost: float = Field(default=0, ge=0)
+    supplier: Optional[str] = None
+
+    _name_must_not_be_blank = field_validator("name", mode="before")(_require_non_blank)
+    _quantity_must_be_integer = field_validator("quantity", mode="before")(_require_positive_integer)
+    _unit_cost_must_be_valid = field_validator("unit_cost", mode="before")(_require_non_negative_number)
+
 class PartUsageIn(BaseModel):
     part_id: int = Field(gt=0)
     qty: int = Field(default=1, gt=0)

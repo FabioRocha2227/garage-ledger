@@ -50,6 +50,15 @@ class Part(SQLModel, table=True):
 
     photos: List["Photo"] = Relationship(back_populates="part", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
 
+class ConsumablePurchase(SQLModel, table=True):
+    id: Optional[int] = Field(default=None, primary_key=True)
+    date: date
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    name: str
+    quantity: int = 1
+    unit_cost: float = 0
+    supplier: Optional[str] = None
+
 class PartUsage(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     car_id: int = Field(foreign_key="car.id")

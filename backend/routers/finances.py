@@ -9,7 +9,7 @@ from sqlmodel import Session, select
 from datetime import datetime
 
 from backend.database import get_session
-from backend.models import Car, ServiceJob, OwnerWithdrawal
+from backend.models import Car, ConsumablePurchase, ServiceJob, OwnerWithdrawal
 from backend.schemas import OwnerWithdrawalIn
 from backend.helper import car_cost, car_out, service_cost, service_out
 
@@ -36,6 +36,8 @@ def dashboar(session:Session  = Depends(get_session)):
     services = session.exec(select(ServiceJob)).all()
     service_revenue = sum(s.price for s in services)
     service_profit = sum(s.price - service_cost(s) for s in services)
+    consumables = session.exec(select(ConsumablePurchase)).all()
+    consumable_expenses = sum(purchase.quantity * purchase.unit_cost for purchase in consumables)
 
     return {
         "invested": car_invested,
@@ -50,7 +52,8 @@ def dashboar(session:Session  = Depends(get_session)):
         "service_profit": service_profit,
         "service_jobs": len(services),
         "total_revenue": car_revenue + service_revenue,
-        "total_profit": car_profit + service_profit,
+        "total_profit": car_profit + service_profit - consumable_expenses,
+        "consumable_expenses": consumable_expenses,
     }
 
 def _all_transactions(session: Session):
@@ -77,6 +80,16 @@ def _all_transactions(session: Session):
         for p in s.parts_used:
             entries.append({"date": str(s.date), "timestamp": _stamp(s.date, p.created_at), "car": label, "type": f"Part: {p.part_name}", "amount": -p.cost})
         entries.append({"date": str(s.date), "timestamp": _stamp(s.date, s.created_at), "car": label, "type": f"Job: {s.description}", "amount": s.price})
+
+    consumables = session.exec(select(ConsumablePurchase)).all()
+    for purchase in consumables:
+        entries.append({
+            "date": str(purchase.date),
+            "timestamp": _stamp(purchase.date, purchase.created_at),
+            "car": "Consumables",
+            "type": f"Consumable: {purchase.name}",
+            "amount": -(purchase.quantity * purchase.unit_cost),
+        })
 
     withdrawals = session.exec(select(OwnerWithdrawal)).all()
     for w in withdrawals:

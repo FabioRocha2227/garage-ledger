@@ -5,7 +5,7 @@
 // -----------------------------------------------------------------------
 
 let financeChartMonths = 6;   // 3 | 6 | 12
-let financeTxFilter = 'all';  // all | income | expense | cars | jobs | parts | withdrawals
+let financeTxFilter = 'all';  // all | income | expense | cars | jobs | consumables | withdrawals
 let showAddTxMenu = false;
 let showWithdrawalForm = false;
 let financeOverview = 'monthly'; // monthly | all-time
@@ -27,6 +27,7 @@ function txCategory(entry) {
   if (t === 'Purchase') return { label: 'Vehicle Purchase', cls: 'cat-purchase', desc: entry.car };
   if (t.startsWith('Repair:')) return { label: 'Repair', cls: 'cat-repair', desc: t.slice(8) };
   if (t.startsWith('Part:')) return { label: 'Part', cls: 'cat-part', desc: t.slice(6) };
+  if (t.startsWith('Consumable:')) return { label: 'Consumables', cls: 'cat-expense', desc: t.slice(11) };
   if (t.startsWith('Expense:')) return { label: 'Other Expense', cls: 'cat-expense', desc: t.slice(9) };
   if (t.startsWith('Labor:')) return { label: 'Service Labor', cls: 'cat-labor', desc: t.slice(7) };
   if (t.startsWith('Job:')) return { label: 'Service Job', cls: 'cat-job', desc: t.slice(5) };
@@ -36,6 +37,7 @@ function txCategory(entry) {
 
 function renderFinances() {
   const entries = financeData.entries;
+  const visibleEntries = entries.filter(e => !e.type.startsWith('Part:'));
 
   // Fire-and-forget: fills in the backup list once it's fetched.
   loadBackupsList();
@@ -71,8 +73,8 @@ function renderFinances() {
   const series = buildFinanceSeries(entries, financeChartMonths);
   const expenseCats = buildExpenseCategories(entries);
 
-  const filteredEntries = financeTxFilter === 'all' ? entries
-    : entries.filter(e => {
+  const filteredEntries = financeTxFilter === 'all' ? visibleEntries
+    : visibleEntries.filter(e => {
       if (financeTxFilter === 'income') return e.amount > 0;
       if (financeTxFilter === 'expense') return e.amount < 0;
       return transactionGroup(e) === financeTxFilter;
@@ -101,7 +103,7 @@ function renderFinances() {
       <div class="row-actions" style="flex-wrap:wrap">
         <button class="ghost" onclick="setView('cars')">🚗 Repair, expense or sale on a car</button>
         <button class="ghost" onclick="setView('services')">🔧 Service job for a customer</button>
-        <button class="ghost" onclick="setView('parts')">📦 Parts or tools purchase</button>
+        <button class="ghost" onclick="setView('parts')">📦 Inventory purchase</button>
         <button class="ghost" onclick="toggleWithdrawalForm()">💶 Owner withdrawal</button>
       </div>
     </div>` : ''}
@@ -136,7 +138,7 @@ function renderFinances() {
         <div class="finance-kpi">
           <div class="finance-kpi-heading"><span class="finance-kpi-dot dot-expense"></span>Operating expenses</div>
           <strong>€${fmt(financeOverview === 'monthly' ? mtdExpense : totalExpense)}</strong>
-          <span>Purchases, repairs and parts</span>
+          <span>Purchases, repairs, labor and consumables</span>
         </div>
         <div class="finance-kpi">
           <div class="finance-kpi-heading"><span class="finance-kpi-dot dot-profit"></span>Net profit</div>
@@ -183,7 +185,7 @@ function renderFinances() {
           <button class="tab ${financeTxFilter === 'expense' ? 'active' : ''}" onclick="setFinanceTxFilter('expense')">Expenses</button>
           <button class="tab ${financeTxFilter === 'cars' ? 'active' : ''}" onclick="setFinanceTxFilter('cars')">Cars</button>
           <button class="tab ${financeTxFilter === 'jobs' ? 'active' : ''}" onclick="setFinanceTxFilter('jobs')">Jobs</button>
-          <button class="tab ${financeTxFilter === 'parts' ? 'active' : ''}" onclick="setFinanceTxFilter('parts')">Parts</button>
+          <button class="tab ${financeTxFilter === 'consumables' ? 'active' : ''}" onclick="setFinanceTxFilter('consumables')">Consumables</button>
         </div>
       </div>
       ${filteredEntries.length === 0 ? '<div class="empty">No transactions match this filter.</div>' : `
@@ -225,6 +227,7 @@ function transactionDateTime(entry) {
 
 function transactionGroup(entry) {
   if (isOwnerWithdrawal(entry)) return 'withdrawals';
+  if (entry.type.startsWith('Consumable:')) return 'consumables';
   if (entry.type.startsWith('Part:')) return 'parts';
   if (entry.type.startsWith('Labor:') || entry.type.startsWith('Job:')) return 'jobs';
   return 'cars';
@@ -357,6 +360,7 @@ function buildExpenseCategories(entries) {
   const buckets = {
     purchase: { label: 'Car purchases', color: '#e0611e', value: 0 },
     part: { label: 'Parts', color: '#6fb3e0', value: 0 },
+    consumables: { label: 'Consumables', color: '#e0c05f', value: 0 },
     labor: { label: 'Repairs & labor', color: '#5fb383', value: 0 },
     other: { label: 'Other expenses', color: '#b48be0', value: 0 },
   };
@@ -366,6 +370,7 @@ function buildExpenseCategories(entries) {
     const t = e.type, v = Math.abs(e.amount);
     if (t === 'Purchase') buckets.purchase.value += v;
     else if (t.startsWith('Part:')) buckets.part.value += v;
+    else if (t.startsWith('Consumable:')) buckets.consumables.value += v;
     else if (t.startsWith('Repair:') || t.startsWith('Labor:')) buckets.labor.value += v;
     else buckets.other.value += v;
   });
