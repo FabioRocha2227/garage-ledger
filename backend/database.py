@@ -46,6 +46,9 @@ def _migrate(conn):
     if "sale_at" not in car_cols:
         conn.execute(text("ALTER TABLE car ADD COLUMN sale_at DATETIME"))
         conn.execute(text("UPDATE car SET sale_at = datetime(sale_date) WHERE sale_date IS NOT NULL"))
+    if "km" not in car_cols:
+        conn.execute(text("ALTER TABLE car ADD COLUMN km INTEGER DEFAULT 0"))
+        conn.execute(text("UPDATE car SET km = 0 WHERE km IS NULL"))
 
 
 def init_db():

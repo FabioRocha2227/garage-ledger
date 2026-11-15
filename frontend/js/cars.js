@@ -93,6 +93,7 @@ function renderAddCarForm() {
         <div class="field"><label>Plate (optional)</label><input id="nf-plate" placeholder="00-AA-00"></div>
         <div class="field"><label>Purchase date</label><input id="nf-date" type="date" value="${today()}"></div>
         <div class="field"><label>Purchase price (€)</label><input id="nf-price" type="number" min="0" step="0.01" placeholder="0" required></div>
+        <div class="field"><label>Mileage at purchase (km)</label><input id="nf-km" type="number" min="0" step="1" placeholder="0" required></div>
         <button class="btn" onclick="addCar()">Add car</button>
       </div>
     </div>
@@ -229,11 +230,17 @@ async function addCar() {
   if (!name) { alert('Give the car a name.'); return; }
   const purchasePrice = readAmount('nf-price', 'Purchase price');
   if (purchasePrice === null) return;
+  const km = readAmount('nf-km', 'Mileage');
+  if (km === null || !Number.isInteger(km) || km < 0) {
+    alert('Mileage must be a non-negative whole number.');
+    return;
+  }
   await api('/cars', {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({
       name, plate: document.getElementById('nf-plate').value.trim() || null,
       purchase_date: document.getElementById('nf-date').value || today(),
-      purchase_price: purchasePrice
+      purchase_price: purchasePrice,
+      km
     })
   });
   cars = await api('/cars');
@@ -254,7 +261,7 @@ function renderCarDetail(c) {
     <div class="cars-page">
     <span class="backbtn" onclick="setView('cars')">&larr; Back to cars</span>
     <h1>${esc(c.name)} ${c.plate ? `<span class="small">(${esc(c.plate)})</span>` : ''}</h1>
-    <p class="sub">Purchased ${c.purchase_date} for €${fmt(c.purchase_price)} ${statusBadge(c)}</p>
+    <p class="sub">Purchased ${c.purchase_date} for €${fmt(c.purchase_price)} at ${fmt(c.km)} km ${statusBadge(c)}</p>
     <div class="grid">
       <div class="stat"><div class="label">Total cost so far</div><div class="num">€${fmt(c.cost)}</div></div>
       <div class="stat"><div class="label">Sale price</div><div class="num">${c.sale_price != null ? '€' + fmt(c.sale_price) : '—'}</div></div>

@@ -39,9 +39,11 @@ class CarIn(BaseModel):
     plate: Optional[str] = None
     purchase_date: date_type
     purchase_price: float = Field(default=0, ge=0)
+    km: int = Field(default=0, ge=0)
 
     _name_must_not_be_blank = field_validator("name", mode="before")(_require_non_blank)
     _purchase_price_must_be_valid = field_validator("purchase_price", mode="before")(_require_non_negative_number)
+    _km_must_be_integer = field_validator("km", mode="before")(_require_non_negative_integer)
 
 class RepairIn(BaseModel):
     date: date_type

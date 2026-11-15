@@ -9,6 +9,7 @@ class Car(SQLModel, table=True):
     plate: Optional[str] = None
     purchase_date: date
     purchase_price: float=0
+    km: int = 0
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
     sale_date: Optional[date] = None

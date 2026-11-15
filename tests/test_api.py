@@ -46,6 +46,7 @@ def create_car(client, name="Civic", purchase_date="2026-09-01"):
             "plate": "TEST-01",
             "purchase_date": purchase_date,
             "purchase_price": 2500,
+            "km": 125000,
         },
     )
     assert response.status_code == 200, response.text
@@ -73,6 +74,7 @@ def test_health_and_car_crud(client):
     car = create_car(client)
     assert car["name"] == "Civic"
     assert car["purchase_price"] == 2500
+    assert car["km"] == 125000
     assert client.get(f"/api/cars/{car['id']}").json()["id"] == car["id"]
     assert len(client.get("/api/cars").json()) == 1
 
@@ -251,6 +253,12 @@ def test_request_validation_rejects_invalid_values(client):
         json={"name": "Civic", "purchase_date": "2026-09-01", "purchase_price": -1},
     )
     assert invalid_car.status_code == 422
+
+    invalid_km = client.post(
+        "/api/cars",
+        json={"name": "Civic", "purchase_date": "2026-09-01", "km": -1},
+    )
+    assert invalid_km.status_code == 422
 
     invalid_part = client.post(
         "/api/parts",

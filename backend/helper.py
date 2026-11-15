@@ -31,6 +31,7 @@ def car_out(car: Car) -> dict:
         "plate": car.plate,
         "purchase_date": car.purchase_date,
         "purchase_price": car.purchase_price,
+        "km": car.km,
         "sale_date": car.sale_date,
         "sale_price": car.sale_price,
         "sale_buyer": car.sale_buyer,
