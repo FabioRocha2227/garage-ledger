@@ -15,6 +15,9 @@ from backend.helper import car_cost, car_out, service_cost, service_out
 
 router = APIRouter(tags=["finances"])
 
+def _money(value):
+    return round(value, 2)
+
 def _stamp(day, value):
     return value.isoformat(timespec="seconds") if value else f"{day.isoformat()}T00:00:00"
 
@@ -37,9 +40,9 @@ def dashboar(session:Session  = Depends(get_session)):
     service_revenue = sum(s.price for s in services)
     service_profit = sum(s.price - service_cost(s) for s in services)
     consumables = session.exec(select(ConsumablePurchase)).all()
-    consumable_expenses = sum(purchase.quantity * purchase.unit_cost for purchase in consumables)
+    consumable_expenses = _money(sum(purchase.quantity * purchase.unit_cost for purchase in consumables))
     tools = session.exec(select(ToolPurchase)).all()
-    tool_expenses = sum(purchase.quantity * purchase.unit_cost for purchase in tools)
+    tool_expenses = _money(sum(purchase.quantity * purchase.unit_cost for purchase in tools))
 
     return {
         "invested": car_invested,
@@ -129,9 +132,9 @@ def finances(session:Session = Depends(get_session)):
     total_withdrawals = sum(abs(e["amount"]) for e in entries if e["type"] == "Owner withdrawal")
     return {
         "entries": entries,
-        "total_in": total_in,
-        "total_out": total_out,
-        "total_withdrawals": total_withdrawals,
+        "total_in": _money(total_in),
+        "total_out": _money(total_out),
+        "total_withdrawals": _money(total_withdrawals),
     }
 
 @router.post("/api/withdrawals")

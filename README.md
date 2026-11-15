@@ -102,7 +102,7 @@ The backend exposes these route groups:
 | Cars | `/api/cars` |
 | Repairs and expenses | `/api/cars/{id}/repairs`, `/api/cars/{id}/expenses` |
 | Sales and parts usage | `/api/cars/{id}/sale`, `/api/cars/{id}/use-part` |
-| Parts inventory | `/api/parts` |
+| Inventory and purchase history | `/api/parts`, `/api/consumables`, `/api/tools` |
 | Service jobs | `/api/services` |
 | Photos | `/api/cars/{id}/photos`, `/api/parts/{id}/photos`, `/api/photos/{id}` |
 | Finance | `/api/dashboard`, `/api/finances`, `/api/withdrawals`, `/api/export/csv` |
@@ -139,6 +139,7 @@ garage-ledger/
 - Tools cannot be consumed as vehicle or service-job parts.
 - Vehicle cost combines purchase price, repairs, expenses, and consumed parts.
 - Service-job profit is calculated from the job price minus labor and consumed-part costs.
+- Consumable and tool purchases are recorded as business expenses in the finance ledger.
 
 ## Security and Scope
 

@@ -30,7 +30,7 @@ async function api(path, opts) {
 }
 
 // Formatting helpers
-const fmt = n => (Number(n) || 0).toLocaleString(undefined, { maximumFractionDigits: 0 });
+const fmt = n => (Number(n) || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
 const today = () => {
   const now = new Date();
   const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);

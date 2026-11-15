@@ -240,6 +240,23 @@ def test_tool_purchase_enters_finances_and_profit(client):
     assert dashboard["total_profit"] == -250
     assert client.delete(f"/api/tools/{purchase['id']}").status_code == 200
 
+def test_finance_totals_reconcile_with_dashboard_profit(client):
+    car = create_car(client, purchase_date="2026-09-01")
+    client.post(
+        f"/api/cars/{car['id']}/expenses",
+        json={"date": "2026-09-02", "description": "Transport", "cost": 10.25},
+    )
+    client.post(
+        f"/api/cars/{car['id']}/sale",
+        json={"sale_date": "2026-09-03", "sale_price": 3000.75},
+    )
+    create_consumable(client, quantity=1, unit_cost=8.50)
+    create_tool_purchase(client, quantity=1, unit_cost=12.25)
+
+    finances = client.get("/api/finances").json()
+    dashboard = client.get("/api/dashboard").json()
+    assert round(finances["total_in"] + finances["total_out"], 2) == round(dashboard["total_profit"], 2)
+
 def test_owner_withdrawal_enters_cash_ledger_without_reducing_profit(client):
     response = client.post(
         "/api/withdrawals",
