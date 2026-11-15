@@ -16,6 +16,21 @@
 .finances-page .export-csv small{display:block; color:var(--sub); font-size:10px; margin-top:2px}
 
 .finances-page .finance-transactions{margin-top:20px}
+.finances-page .finance-analytics-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:20px; margin-top:20px}
+.finances-page .finance-analytics-panel,
+.finances-page .finance-performance-panel{min-width:0}
+.finances-page .finance-analytics-panel .panel-head,
+.finances-page .finance-performance-panel .panel-head{align-items:flex-start}
+.finances-page .finance-table-note{margin:-8px 0 12px}
+.finances-page .finance-table-scroll{overflow-x:auto}
+.finances-page .finance-analytics-table{margin-top:0; width:100%}
+.finances-page .finance-analytics-table td,
+.finances-page .finance-analytics-table th{white-space:nowrap}
+.finances-page .finance-analytics-table td:first-child,
+.finances-page .finance-analytics-table th:first-child{white-space:normal}
+.finances-page .finance-total-row{border-top:1px solid var(--line); font-weight:600}
+.finances-page .finance-result-row{border-top:2px solid var(--line); font-weight:700}
+.finances-page .finance-performance-panel{margin-top:20px}
 .finances-page .finance-overview{padding:0; overflow:hidden}
 .finances-page .finance-overview-head{padding:18px 20px 14px; margin:0; border-bottom:1px solid var(--line)}
 .finances-page .finance-eyebrow{display:block; color:var(--accent2); font-size:10px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; margin-bottom:3px}
@@ -92,6 +107,7 @@
 .finances-page .legend-amt{margin-left:auto}
 
 @media(max-width:720px){
+  .finances-page .finance-analytics-grid{grid-template-columns:1fr}
   .finances-page .dash-actions .export-csv,
   .finances-page .dash-actions .btn{flex:1; justify-content:center}
   .finances-page .finance-overview-head{align-items:flex-start; flex-direction:column; gap:10px}

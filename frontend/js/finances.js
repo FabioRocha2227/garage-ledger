@@ -9,6 +9,7 @@ let financeTxFilter = 'all';  // all | income | expense | cars | jobs | consumab
 let showAddTxMenu = false;
 let showWithdrawalForm = false;
 let financeOverview = 'monthly'; // monthly | all-time
+let showBackups = false;
 
 function isOwnerWithdrawal(entry) {
   return entry.type === 'Owner withdrawal';
@@ -73,6 +74,9 @@ function renderFinances() {
 
   const series = buildFinanceSeries(entries, financeChartMonths);
   const expenseCats = buildExpenseCategories(entries);
+  const profitLoss = buildProfitLoss(entries);
+  const monthlySummary = buildMonthlySummary(entries, 12);
+  const performanceRows = buildPerformanceRows(entries);
 
   const filteredEntries = financeTxFilter === 'all' ? visibleEntries
     : visibleEntries.filter(e => {
@@ -177,6 +181,41 @@ function renderFinances() {
       </div>
     </div>
 
+    <div class="finance-analytics-grid">
+      <div class="panel finance-analytics-panel">
+        <div class="panel-head">
+          <div>
+            <span class="finance-eyebrow">Accountability</span>
+            <h2>Profit &amp; Loss</h2>
+          </div>
+          <span class="small">All recorded activity</span>
+        </div>
+        ${renderProfitLossTable(profitLoss)}
+      </div>
+      <div class="panel finance-analytics-panel">
+        <div class="panel-head">
+          <div>
+            <span class="finance-eyebrow">Trend</span>
+            <h2>Monthly summary</h2>
+          </div>
+          <span class="small">Last 12 months</span>
+        </div>
+        ${renderMonthlySummaryTable(monthlySummary)}
+      </div>
+    </div>
+
+    <div class="panel finance-performance-panel">
+      <div class="panel-head">
+        <div>
+          <span class="finance-eyebrow">Decision support</span>
+          <h2>Vehicle &amp; service performance</h2>
+        </div>
+        <span class="small">Revenue less recorded costs</span>
+      </div>
+      <p class="small finance-table-note">Business-wide purchases are shown separately because they are not assigned to one vehicle or job.</p>
+      ${renderPerformanceTable(performanceRows)}
+    </div>
+
     <div class="panel finance-transactions">
       <div class="panel-head">
         <h2>Recent transactions</h2>
@@ -209,13 +248,16 @@ function renderFinances() {
       ${filteredEntries.length > 60 ? `<p class="small" style="margin-top:10px">Showing the 60 most recent — export CSV for the full history.</p>` : ''}`}
     </div>
 
-    <div class="panel">
+    <div class="panel finance-backup-panel">
       <div class="panel-head">
         <h2>Backup</h2>
-        <button class="ghost" onclick="backupNow()">Back up now</button>
+        <div class="row-actions">
+          <button class="ghost" onclick="backupNow()">Back up now</button>
+          <button class="ghost" onclick="toggleBackups()" aria-expanded="${showBackups}" aria-controls="fin-backups">${showBackups ? 'Hide history' : 'Show history'}</button>
+        </div>
       </div>
       <p class="small" style="margin-top:-8px">A backup is taken automatically once a day. Each one is a full copy of <code>garage.db</code> and <code>uploads/</code>, kept for 14 days.</p>
-      <div id="fin-backups"><div class="empty">Loading backups…</div></div>
+      ${showBackups ? '<div id="fin-backups"><div class="empty">Loading backups…</div></div>' : ''}
     </div>
     </div>
   `;
@@ -271,6 +313,7 @@ function setFinanceTxFilter(f) { financeTxFilter = f; refreshFinancesView(); }
 function setFinanceOverview(mode) { financeOverview = mode; refreshFinancesView(); }
 function toggleAddTxMenu() { showAddTxMenu = !showAddTxMenu; refreshFinancesView(); }
 function toggleWithdrawalForm() { showWithdrawalForm = !showWithdrawalForm; refreshFinancesView(); }
+function toggleBackups() { showBackups = !showBackups; refreshFinancesView(); }
 
 function renderWithdrawalForm() {
   return `
@@ -362,7 +405,6 @@ function renderCashFlowChart(series) {
 function buildExpenseCategories(entries) {
   const buckets = {
     purchase: { label: 'Car purchases', color: '#e0611e', value: 0 },
-    part: { label: 'Parts', color: '#6fb3e0', value: 0 },
     consumables: { label: 'Consumables', color: '#e0c05f', value: 0 },
     tools: { label: 'Tools & equipment', color: '#d18b4a', value: 0 },
     labor: { label: 'Repairs & labor', color: '#5fb383', value: 0 },
@@ -373,15 +415,109 @@ function buildExpenseCategories(entries) {
     if (isOwnerWithdrawal(e)) return;
     const t = e.type, v = Math.abs(e.amount);
     if (t === 'Purchase') buckets.purchase.value += v;
-    else if (t.startsWith('Part:')) buckets.part.value += v;
     else if (t.startsWith('Consumable:')) buckets.consumables.value += v;
     else if (t.startsWith('Tool:')) buckets.tools.value += v;
-    else if (t.startsWith('Repair:') || t.startsWith('Labor:')) buckets.labor.value += v;
+    else if (t.startsWith('Part:') || t.startsWith('Repair:') || t.startsWith('Labor:')) buckets.labor.value += v;
     else buckets.other.value += v;
   });
   const list = Object.values(buckets).filter(b => b.value > 0);
   const total = list.reduce((s, b) => s + b.value, 0);
   return { list, total };
+}
+
+function buildProfitLoss(entries) {
+  const rows = [
+    { key: 'income', label: 'Revenue', value: 0, cls: 'pos' },
+    { key: 'purchase', label: 'Vehicle purchases', value: 0 },
+    { key: 'repairs', label: 'Repairs & labor', value: 0 },
+    { key: 'consumables', label: 'Consumables', value: 0 },
+    { key: 'tools', label: 'Tools & equipment', value: 0 },
+    { key: 'other', label: 'Other expenses', value: 0 },
+  ];
+  const byKey = Object.fromEntries(rows.map(row => [row.key, row]));
+  entries.forEach(entry => {
+    if (isOwnerWithdrawal(entry)) return;
+    if (entry.amount > 0) {
+      byKey.income.value += entry.amount;
+      return;
+    }
+    const type = entry.type;
+    let key = 'other';
+    if (type === 'Purchase') key = 'purchase';
+    else if (type.startsWith('Part:') || type.startsWith('Repair:') || type.startsWith('Labor:')) key = 'repairs';
+    else if (type.startsWith('Consumable:')) key = 'consumables';
+    else if (type.startsWith('Tool:')) key = 'tools';
+    byKey[key].value += Math.abs(entry.amount);
+  });
+  const expenses = rows.slice(1).reduce((sum, row) => sum + row.value, 0);
+  return { rows, expenses, profit: rows[0].value - expenses };
+}
+
+function renderProfitLossTable({ rows, expenses, profit }) {
+  return `<table class="dash-table finance-analytics-table">
+    <tbody>
+      ${rows.map((row, index) => `<tr class="${index === 0 ? 'finance-total-row' : ''}">
+        <td>${esc(row.label)}</td>
+        <td class="mono ${index === 0 ? 'pos' : 'neg'}">${index === 0 ? '+' : '−'}€${fmt(row.value)}</td>
+      </tr>`).join('')}
+      <tr class="finance-total-row"><td>Total operating expenses</td><td class="mono neg">−€${fmt(expenses)}</td></tr>
+      <tr class="finance-result-row"><td>Business profit</td><td class="mono ${profit >= 0 ? 'pos' : 'neg'}">${profit >= 0 ? '+' : '−'}€${fmt(Math.abs(profit))}</td></tr>
+    </tbody>
+  </table>`;
+}
+
+function buildMonthlySummary(entries, months) {
+  const byMonth = {};
+  entries.forEach(entry => {
+    if (isOwnerWithdrawal(entry)) return;
+    const month = entry.date.slice(0, 7);
+    if (!byMonth[month]) byMonth[month] = { month, income: 0, expenses: 0 };
+    if (entry.amount > 0) byMonth[month].income += entry.amount;
+    else byMonth[month].expenses += Math.abs(entry.amount);
+  });
+  return Object.values(byMonth).sort((a, b) => b.month.localeCompare(a.month)).slice(0, months);
+}
+
+function renderMonthlySummaryTable(rows) {
+  if (!rows.length) return '<div class="empty">No monthly activity recorded yet.</div>';
+  return `<div class="finance-table-scroll"><table class="dash-table finance-analytics-table">
+    <thead><tr><th>Month</th><th>Income</th><th>Expenses</th><th>Profit</th></tr></thead>
+    <tbody>${rows.map(row => {
+      const profit = row.income - row.expenses;
+      const date = new Date(`${row.month}-01T00:00:00`);
+      const label = date.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+      return `<tr><td>${label}</td><td class="mono pos">+€${fmt(row.income)}</td><td class="mono neg">−€${fmt(row.expenses)}</td><td class="mono ${profit >= 0 ? 'pos' : 'neg'}">${profit >= 0 ? '+' : '−'}€${fmt(Math.abs(profit))}</td></tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+function buildPerformanceRows(entries) {
+  const groups = {};
+  entries.forEach(entry => {
+    if (isOwnerWithdrawal(entry)) return;
+    const global = entry.type.startsWith('Consumable:') || entry.type.startsWith('Tool:');
+    const label = global ? 'Business-wide' : (entry.car || 'Unassigned');
+    if (!groups[label]) groups[label] = { label, income: 0, costs: 0 };
+    if (entry.amount > 0) groups[label].income += entry.amount;
+    else groups[label].costs += Math.abs(entry.amount);
+  });
+  return Object.values(groups)
+    .map(row => ({ ...row, profit: row.income - row.costs }))
+    .filter(row => row.income > 0 || row.costs > 0)
+    .sort((a, b) => b.profit - a.profit);
+}
+
+function renderPerformanceTable(rows) {
+  if (!rows.length) return '<div class="empty">No vehicle or service activity recorded yet.</div>';
+  return `<div class="finance-table-scroll"><table class="dash-table finance-analytics-table">
+    <thead><tr><th>Vehicle / job</th><th>Revenue</th><th>Costs</th><th>Result</th></tr></thead>
+    <tbody>${rows.map(row => `<tr>
+      <td>${esc(row.label)}</td>
+      <td class="mono pos">+€${fmt(row.income)}</td>
+      <td class="mono neg">−€${fmt(row.costs)}</td>
+      <td class="mono ${row.profit >= 0 ? 'pos' : 'neg'}">${row.profit >= 0 ? '+' : '−'}€${fmt(Math.abs(row.profit))}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
 }
 
 function renderExpenseDonut({ list, total }) {
