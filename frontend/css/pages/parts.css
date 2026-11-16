@@ -1,5 +1,37 @@
 /* Parts page: inventory summaries, tables and distribution. */
 
+.parts-page .inventory-eyebrow{
+  display:block; margin-bottom:5px; color:var(--accent2); font-size:10px;
+  font-weight:700; letter-spacing:.11em; text-transform:uppercase;
+}
+.parts-page .inventory-actions{display:flex; flex-wrap:wrap; gap:9px; justify-content:flex-end}
+.parts-page .inventory-actions .btn,
+.parts-page .inventory-actions .ghost{white-space:nowrap}
+.parts-page .inventory-summary-grid{
+  display:grid; grid-template-columns:1.25fr 1fr 1fr; gap:14px; margin-bottom:22px;
+}
+.parts-page .inventory-summary-card{
+  display:flex; align-items:center; gap:13px; min-height:92px; padding:16px 18px;
+  border:1px solid var(--line); border-top:3px solid var(--accent);
+  border-radius:9px; background:var(--panel);
+}
+.parts-page .inventory-summary-card>div:last-child{min-width:0}
+.parts-page .inventory-summary-total{border-top-color:var(--accent2)}
+.parts-page .inventory-summary-consumables{border-top-color:var(--inventory)}
+.parts-page .inventory-summary-tools{border-top-color:var(--tool)}
+.parts-page .inventory-summary-icon{
+  display:flex; align-items:center; justify-content:center; flex:0 0 38px;
+  width:38px; height:38px; border-radius:10px; background:var(--panel2);
+  color:var(--accent2); font-family:var(--mono); font-weight:700;
+}
+.parts-page .inventory-summary-card .label{display:block; margin-bottom:5px; color:var(--sub); font-size:11px; font-weight:600}
+.parts-page .inventory-summary-card strong{display:block; font-family:var(--mono); font-size:20px; line-height:1.1}
+.parts-page .inventory-summary-card small{display:block; margin-top:5px; color:var(--sub); font-size:11px}
+.parts-page .inventory-form-panel{margin-bottom:22px; border-top:3px solid var(--tool)}
+.parts-page .inventory-form-heading{display:flex; align-items:flex-start; justify-content:space-between; gap:20px; margin-bottom:2px}
+.parts-page .inventory-form-heading h2{margin:0}
+.parts-page .inventory-section-intro{display:flex; flex-direction:column; gap:3px; margin-bottom:14px; color:var(--sub); font-size:12px}
+.parts-page .inventory-section-intro strong{color:var(--text); font-size:13px}
 .parts-page .icon-blue{background:#1c2f42; color:#6fb3e0}
 .parts-page .icon-amber{background:#4a3c18; color:#e0c05f}
 .parts-page .inventory-stat{min-height:100px; align-items:center; border-top:2px solid var(--inventory)}
@@ -43,6 +75,11 @@
 .parts-page .consumables-history-actions{margin-top:14px}
 
 @media(max-width:600px){
+  .parts-page .inventory-actions{justify-content:flex-start; width:100%}
+  .parts-page .inventory-actions .btn,
+  .parts-page .inventory-actions .ghost{flex:1}
+  .parts-page .inventory-summary-grid{grid-template-columns:1fr}
+  .parts-page .inventory-form-heading{flex-direction:column; gap:6px}
   .parts-page .inventory-bar-row{grid-template-columns:1fr 74px; gap:6px 12px}
   .parts-page .inventory-bar-track{grid-column:1 / 2}
   .parts-page .inventory-bar-value{grid-column:2; grid-row:1 / span 2}

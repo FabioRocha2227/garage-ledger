@@ -10,28 +10,37 @@
 let showAddPartForm = false;
 let showConsumableForm = false;
 let consumablesHistoryOpen = true;
-let toolsHistoryOpen = true;
+let toolsHistoryOpen = false;
 
 function renderParts() {
-  const sorted = [...parts].sort((a, b) => a.name.localeCompare(b.name));
-  const tools = sorted.filter(p => p.category === 'tool');
-  const d = inventoryValues([], tools);
+  const consumableTotal = consumables.reduce((sum, item) => sum + (Number(item.total) || 0), 0);
+  const toolTotal = toolPurchases.reduce((sum, item) => sum + (Number(item.total) || 0), 0);
+  const purchaseTotal = consumableTotal + toolTotal;
 
   return `
     <div class="parts-page">
     <div class="dash-head">
       <div>
         <h1>Inventory</h1>
-        <p class="sub">Consumables history and tools/equipment you own.</p>
+        <p class="sub">Keep every consumable and equipment purchase organized in one place.</p>
       </div>
-      <button class="btn" onclick="toggleAddPartForm()">${showAddPartForm ? 'Cancel' : '+ Add item'}</button>
+      <div class="dash-actions inventory-actions">
+        <button class="ghost" onclick="toggleConsumableForm()">${showConsumableForm ? 'Cancel' : '+ Log consumable'}</button>
+        <button class="btn" onclick="toggleAddPartForm()">${showAddPartForm ? 'Cancel' : '+ Log tool purchase'}</button>
+      </div>
     </div>
-    <div class="grid inventory-summary">
-      <div class="stat stat-icon inventory-stat inventory-stat-value">
-        <div class="icon-box icon-blue">€</div><div><div class="label">Inventory value</div><div class="num">€${fmt(d.totalValue)}</div></div>
+    <div class="inventory-summary-grid">
+      <div class="inventory-summary-card inventory-summary-total">
+        <div class="inventory-summary-icon">€</div>
+        <div><span class="label">Recorded purchase spend</span><strong>€${fmt(purchaseTotal)}</strong><small>${consumables.length + toolPurchases.length} purchase${consumables.length + toolPurchases.length === 1 ? '' : 's'} recorded</small></div>
       </div>
-      <div class="stat stat-icon inventory-stat inventory-stat-tools">
-        <div class="icon-box icon-amber">⚒</div><div><div class="label">Tools &amp; equipment</div><div class="num">${fmt(d.toolUnits)}</div><div class="stat-sub">${d.toolItems} item${d.toolItems === 1 ? '' : 's'}</div></div>
+      <div class="inventory-summary-card inventory-summary-consumables">
+        <div class="inventory-summary-icon">C</div>
+        <div><span class="label">Consumables</span><strong>€${fmt(consumableTotal)}</strong><small>${consumables.length} purchase${consumables.length === 1 ? '' : 's'}</small></div>
+      </div>
+      <div class="inventory-summary-card inventory-summary-tools">
+        <div class="inventory-summary-icon">T</div>
+        <div><span class="label">Tools &amp; equipment</span><strong>€${fmt(toolTotal)}</strong><small>${toolPurchases.length} purchase${toolPurchases.length === 1 ? '' : 's'}</small></div>
       </div>
     </div>
     ${showAddPartForm ? renderAddPartForm() : ''}
@@ -52,6 +61,7 @@ function renderConsumablesHistory() {
           <span class="consumables-history-total">Total value: <strong>€${fmt(total)}</strong></span>
         </summary>
         <div class="consumables-history-content">
+          <div class="inventory-section-intro"><strong>Everyday supplies</strong><span>Gloves, oils, cleaning products and other operating expenses.</span></div>
           ${showConsumableForm ? renderConsumableForm() : ''}
           ${consumables.length === 0 ? '<div class="empty">No consumables purchases logged yet.</div>' : `
           <table class="dash-table"><thead><tr><th>Date</th><th>Consumable</th><th>Quantity</th><th>Unit cost</th><th>Total</th><th>Supplier</th><th></th></tr></thead><tbody>
@@ -65,9 +75,6 @@ function renderConsumablesHistory() {
             <td><button class="icon-btn" title="Remove purchase" onclick="deleteConsumable(${item.id})">🗑️</button></td>
           </tr>`).join('')}
           </tbody></table>`}
-          <div class="consumables-history-actions">
-            <button class="btn" onclick="toggleConsumableForm()">${showConsumableForm ? 'Cancel' : '+ Log purchase'}</button>
-          </div>
         </div>
       </details>
     </div>
@@ -99,6 +106,7 @@ function renderToolsHistory() {
           <span class="consumables-history-total">Total expenses: <strong>€${fmt(total)}</strong></span>
         </summary>
         <div class="consumables-history-content">
+          <div class="inventory-section-intro"><strong>Equipment owned by the business</strong><span>Tools are recorded as business expenses when purchased.</span></div>
           ${toolPurchases.length === 0 ? '<div class="empty">No tools or equipment purchases logged yet.</div>' : `
           <table class="dash-table"><thead><tr><th>Date</th><th>Tool / equipment</th><th>Quantity</th><th>Unit cost</th><th>Total</th><th>Supplier</th><th></th></tr></thead><tbody>
           ${toolPurchases.map(item => `<tr>
@@ -116,6 +124,7 @@ function renderToolsHistory() {
 
 function toggleConsumableForm() {
   showConsumableForm = !showConsumableForm;
+  consumablesHistoryOpen = true;
   document.getElementById('main').innerHTML = renderParts();
 }
 
@@ -150,13 +159,13 @@ async function deleteConsumable(id) {
 
 function renderAddPartForm() {
   return `
-    <div class="panel">
-      <h2>Add an item</h2>
+    <div class="panel inventory-form-panel">
+      <div class="inventory-form-heading"><div><span class="inventory-eyebrow">New purchase</span><h2>Log tool or equipment purchase</h2></div><span class="small">This will also appear in Finances.</span></div>
       <div class="row">
         <div class="field"><label>Purchase date</label><input id="pn-date" type="date" value="${today()}"></div>
-        <div class="field"><label>Name</label><input id="pn-name" placeholder="e.g. Brake pads (front), or Car jack"></div>
+        <div class="field"><label>Tool / equipment</label><input id="pn-name" placeholder="e.g. Car jack"></div>
         <input id="pn-category" type="hidden" value="tool">
-        <div class="field"><label>Stock / qty owned</label><input id="pn-stock" type="number" min="0" value="1"></div>
+        <div class="field"><label>Quantity</label><input id="pn-stock" type="number" min="1" value="1"></div>
         <div class="field"><label>Unit cost (€)</label><input id="pn-cost" type="number" min="0" placeholder="0"></div>
         <div class="field"><label>Supplier (optional)</label><input id="pn-supplier" placeholder="Supplier"></div>
         <button class="btn" onclick="addPart()">Add item</button>
