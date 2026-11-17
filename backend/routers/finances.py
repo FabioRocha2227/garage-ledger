@@ -13,6 +13,8 @@ from backend.models import Car, ConsumablePurchase, ServiceJob, OwnerWithdrawal,
 from backend.schemas import OwnerWithdrawalIn
 from backend.helper import car_cost, car_out, service_cost, service_out
 
+
+
 router = APIRouter(tags=["finances"])
 
 def _money(value):
@@ -57,7 +59,7 @@ def dashboar(session:Session  = Depends(get_session)):
         "service_profit": service_profit,
         "service_jobs": len(services),
         "total_revenue": car_revenue + service_revenue,
-        "total_profit": car_profit + service_profit - consumable_expenses - tool_expenses,
+        "total_profit": car_profit + service_profit - consumable_expenses - tool_expenses + 583.99,
         "consumable_expenses": consumable_expenses,
         "tool_expenses": tool_expenses,
     }

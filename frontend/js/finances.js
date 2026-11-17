@@ -10,6 +10,8 @@ let showAddTxMenu = false;
 let showWithdrawalForm = false;
 let financeOverview = 'monthly'; // monthly | all-time
 let showBackups = false;
+let STARTING_CASH = 1500;
+const INITIAL_INVENTORY_VALUE =  583.99;
 
 function isOwnerWithdrawal(entry) {
   return entry.type === 'Owner withdrawal';
@@ -60,9 +62,10 @@ function renderFinances() {
   const totalIncome = Number(financeData.total_in) || 0;
   const totalExpense = Math.abs(Number(financeData.total_out) || 0);
   const totalWithdrawals = Number(financeData.total_withdrawals) || 0;
-  const totalNet = totalIncome - totalExpense;
+  const operatingNet = totalIncome - totalExpense;
+  const totalNet = operatingNet + INITIAL_INVENTORY_VALUE;
   const mtdAvailableCash = mtdNet - mtdWithdrawals;
-  const availableCash = totalNet - totalWithdrawals;
+  const availableCash = STARTING_CASH + operatingNet - totalWithdrawals;
   const lastNet = sumIn(lastMonth) - sumOut(lastMonth);
   let deltaLabel = '—';
   if (lastMonth.length > 0 && lastNet !== 0) {
